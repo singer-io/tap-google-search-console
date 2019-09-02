@@ -1,0 +1,27 @@
+{
+	"currently_syncing": "sitemaps",
+	"bookmarks": {
+		"performance_reports": {
+			"https://example.com": {
+				"web": "2019-06-11T00:00:00Z",
+				"image": "2019-06-12T00:00:00Z",
+				"video": "2019-06-12T00:00:00Z"
+			},
+			"https://www.example.com": {
+				"web": "2019-06-11T00:00:00Z",
+				"image": "2019-06-12T00:00:00Z",
+				"video": "2019-06-12T00:00:00Z"
+			},
+			"http://example.com": {
+				"web": "2019-06-11T00:00:00Z",
+				"image": "2019-06-12T00:00:00Z",
+				"video": "2019-06-12T00:00:00Z"
+			},
+			"http://www.example.com": {
+				"web": "2019-06-11T00:00:00Z",
+				"image": "2019-06-12T00:00:00Z",
+				"video": "2019-06-12T00:00:00Z"
+			}
+		}
+	}
+}
