@@ -159,33 +159,7 @@ The [**Google Search Console Setup & Authentication**](https://drive.google.com/
     Check tap resulted in the following:
     ```bash
     The output is valid.
-    It contained 228 messages for 16 streams.
-
-        17 schema messages
-        167 record messages
-        44 state messages
-
-    Details by stream:
-    +----------------------+---------+---------+
-    | stream               | records | schemas |
-    +----------------------+---------+---------+
-    | deposit_transactions | 9       | 1       |
-    | cards                | 1       | 2       |
-    | clients              | 102     | 1       |
-    | loan_products        | 2       | 1       |
-    | branches             | 2       | 1       |
-    | savings_products     | 1       | 1       |
-    | centres              | 2       | 1       |
-    | users                | 3       | 1       |
-    | credit_arrangements  | 2       | 1       |
-    | communications       | 1       | 1       |
-    | deposits             | 2       | 1       |
-    | custom_field_sets    | 19      | 1       |
-    | loan_transactions    | 6       | 1       |
-    | groups               | 2       | 1       |
-    | tasks                | 7       | 1       |
-    | loans                | 6       | 1       |
-    +----------------------+---------+---------+
+    TBD
     ```
 ---
 

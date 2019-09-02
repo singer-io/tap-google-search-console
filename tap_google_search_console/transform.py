@@ -33,14 +33,14 @@ def convert_json(this_json):
     return out
 
 
+# Remove "keys" node, if exists
 def remove_keys_nodes(this_json, path):
     new_json = this_json
     result = new_json[path].pop("keys", None)
     return new_json
 
 
-# Convert custom fields and sets
-# Generalize/Abstract custom fields to key/value pairs
+# Denest keys values list to dimension_list keys
 def denest_key_fields(this_json, path, dimensions_list):
     new_json = this_json
     i = 0
@@ -56,10 +56,22 @@ def denest_key_fields(this_json, path, dimensions_list):
     return new_json
 
 
-# Run all transforms: denests _embedded, removes _embedded/_links, and
-#  converst camelCase to snake_case for fieldname keys.
-def transform_json(this_json, path, dimensions_list):
+# Denest keys values list to dimension_list keys
+def add_site_url(this_json, path, site):
+    new_json = this_json
+    i = 0
+    for record in this_json[path]:
+        new_json[path][i]['site_url'] = site
+        i = i + 1
+    return new_json
+
+
+# Run all transforms: convert camelCase to snake_case for fieldname keys,
+#   add site_url, denest key fields (dimension values), and remove keys node.
+def transform_json(this_json, path, site, dimensions_list):
     converted_json = convert_json(this_json)
+    if path in ('rows', 'sitemaps'):
+        converted_json = add_site_url(converted_json, path, site)
     new_json = converted_json
     if path == 'rows':
         denested_json = denest_key_fields(converted_json, path, dimensions_list)

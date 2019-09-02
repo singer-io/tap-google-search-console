@@ -234,9 +234,9 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
             data_list.append(data)
             data = data_list
         if data_key is None:
-            transformed_data = transform_json(data, stream_name, dimensions_list)
+            transformed_data = transform_json(data, stream_name, site, dimensions_list)
         elif data_key in data:
-            transformed_data = transform_json(data, data_key, dimensions_list)[data_key]
+            transformed_data = transform_json(data, data_key, site, dimensions_list)[data_key]
         # LOGGER.info('transformed_data = {}'.format(transformed_data))  # TESTING, comment out
         if not transformed_data or transformed_data is None:
             break # No data results
@@ -526,6 +526,6 @@ def sync(client, config, catalog, state):
                     LOGGER.info('  Records Synced for Type: {}'.format(total_records))
                 LOGGER.info('FINISHED Syncing Stream: {}, Site: {}'.format(stream_name, site))
                 LOGGER.info('  Records Synced for Site: {}'.format(site_total))
-         LOGGER.info('FINISHED Syncing Stream: {}'.format(stream_name))
-         LOGGER.info('  Records Synced for Stream: {}'.format(endpoint_total))
-         update_currently_syncing(state, None)
+            LOGGER.info('FINISHED Syncing Stream: {}'.format(stream_name))
+            LOGGER.info('  Records Synced for Stream: {}'.format(endpoint_total))
+            update_currently_syncing(state, None)
