@@ -1,11 +1,13 @@
+import json
 from datetime import datetime, timedelta
+from collections import Counter
 from urllib.parse import quote
 import singer
 from singer import metrics, metadata, Transformer, utils
 from tap_google_search_console.transform import transform_json
 
 LOGGER = singer.get_logger()
-
+BASE_URL = 'https://www.googleapis.com/webmasters/v3'
 
 def write_schema(catalog, stream_name):
     stream = catalog.get_stream(stream_name)
@@ -106,24 +108,6 @@ def process_records(catalog, #pylint: disable=too-many-branches
         return max_bookmark_value, counter.value
 
 
-def date_range(start_date, end_date, delta=timedelta(days=1)):
-    """
-    Yields a stream of datetime objects, for all days within a range.
-    The range is inclusive, so both start_date and end_date will be returned,
-    as well as all dates in between.
-    Args:
-        start_date: The datetime object representing the first day in the range.
-        end_date: The datetime object representing the second day in the range.
-        delta: A datetime.timedelta instance, specifying the step interval. Defaults to one day.
-    Yields:
-        Each datetime object in the range.
-    """
-    current_date = start_date
-    while current_date <= end_date:
-        yield current_date.strftime('%Y-%m-%d')
-        current_date += delta
-
-
 # Sync a specific parent or child endpoint.
 def sync_endpoint(client, #pylint: disable=too-many-branches
                   catalog,
@@ -176,12 +160,17 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
                 'rowLimit': limit,
                 **body_params # adds in endpoint specific, sort, filter body params
             }
+            params = static_params
         elif pagination == 'params':
             params = {
                 'startRow': offset,
                 'rowLimit': limit,
                 **static_params # adds in endpoint specific, sort, filter body params
             }
+            body = body_params
+        else:
+            params = static_params
+            body = body_params
 
         if bookmark_query_field:
             if bookmark_type == 'datetime':
@@ -204,42 +193,55 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
             stream_name,
             site,
             api_method,
-            client.base_url,
+            BASE_URL,
             path,
             '?{}'.format(querystring) if querystring else ''))
-        if body is not None:
+        if body and not body == {}:
             LOGGER.info('body = {}'.format(body))
 
         # API request data, endpoint = stream_name passed to client for metrics logging
-        data = client.request(
-            method=api_method,
-            path=path,
-            params=querystring,
-            endpoint=stream_name,
-            data=json.dumps(body))
+        data = {}
+        if api_method == 'GET':
+            data = client.get(
+                path=path,
+                params=querystring,
+                endpoint=stream_name)
+        elif api_method == 'POST':
+            data = client.post(
+                path=path,
+                params=querystring,
+                endpoint=stream_name,
+                data=json.dumps(body))
 
         # time_extracted: datetime when the data was extracted from the API
         time_extracted = utils.now()
-        if not data or data is None or data == []:
-            break # No data results
+        if not data or data is None or data == {}:
+            LOGGER.info('xxx NO DATA xxx')
+            return 0 # No data results
 
         # Transform data with transform_json from transform.py
-        #  This function converts camelCase to snake_case for fieldname keys.
-        # The data_key may identify array/list of records below the <root> element
         # LOGGER.info('data = {}'.format(data)) # TESTING, comment out
         transformed_data = [] # initialize the record list
-        data_list = []
-        # If a single record dictionary, append to a list[]
-        if isinstance(data, dict):
-            data_list.append(data)
-            data = data_list
         if data_key is None:
-            transformed_data = transform_json(data, stream_name, site, dimensions_list)
+            transformed_data = transform_json(
+                data,
+                stream_name,
+                stream_name,
+                site,
+                sub_type,
+                dimensions_list)
         elif data_key in data:
-            transformed_data = transform_json(data, data_key, site, dimensions_list)[data_key]
+            transformed_data = transform_json(
+                data,
+                stream_name,
+                data_key,
+                site,
+                sub_type,
+                dimensions_list)[data_key]
         # LOGGER.info('transformed_data = {}'.format(transformed_data))  # TESTING, comment out
         if not transformed_data or transformed_data is None:
-            break # No data results
+            LOGGER.info('xxx NO TRANSFORMED DATA xxx')
+            return 0 # No data results
 
         # Process records and get the max_bookmark_value and record_count for the set of records
         max_bookmark_value, record_count = process_records(
@@ -256,7 +258,8 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
             parent_id=parent_id)
 
         # set total_records for pagination
-        total_records = offset + record_count
+        total_records = offset + len(transformed_data)
+        LOGGER.info('total_records: {}, offset: {}, length: {}'.format(total_records, offset, len(transformed_data)))
 
         # Loop thru parent batch records for each children objects (if should stream)
         # NOT USED FOR THIS TAP; no current endpoints have children
@@ -310,6 +313,8 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
                             id_fields=child_endpoint_config.get('id_fields'),
                             parent=child_endpoint_config.get('parent'),
                             parent_id=parent_id)
+
+                            
                         LOGGER.info('START Syncing Child Stream: {}, Parent Stream: {}, Parent ID: {}, \
                             Site: {}, Type: {}, Total Records: {}'.format(
                             child_stream_name,
@@ -437,7 +442,6 @@ def sync(client, config, catalog, state):
             'data_key': 'rows',
             'api_method': 'POST',
             'params': {},
-            'body': {},
             'bookmark_field': 'date',
             'bookmark_type': 'datetime',
             'pagination': 'body',
@@ -447,7 +451,7 @@ def sync(client, config, catalog, state):
     }
 
     # Get current datetime (now_dt_str) for query parameters
-    now_dt_str = transform_datetime(utils.now())[:10]
+    now_dt_str = utils.now().strftime('%Y-%m-%d')
 
     # For each endpoint (above), determine if the stream should be streamed
     #   (based on the catalog and last_stream), then sync those streams.
@@ -459,6 +463,8 @@ def sync(client, config, catalog, state):
             LOGGER.info('STARTED Syncing: {}'.format(stream_name))
             update_currently_syncing(state, stream_name)
             endpoint_total = 0
+            # Initialize body
+            body = endpoint_config.get('body', {})
             # Loop through sites from config site_urls
             site_list = []
             if 'site_urls' in config:
@@ -474,7 +480,8 @@ def sync(client, config, catalog, state):
                 if stream_name == 'performance_reports':
                     # Create dimensions_list from catalog breadcrumb for stream
                     dimensions_all = ['date', 'country', 'device', 'page', 'query']
-                    for stream in catalog['streams']:
+                    catalog_dict = catalog.to_dict()
+                    for stream in catalog_dict['streams']:
                         if stream['stream'] == 'performance_reports':
                             for entry in stream['metadata']:
                                 if entry['metadata']['selected'] == True:
@@ -485,6 +492,7 @@ def sync(client, config, catalog, state):
                                                     dimensions_list.append(field)
 
                 # loop through each sub type
+                sub_types = endpoint_config.get('sub_types', [])
                 for sub_type in sub_types:
                     if stream_name == 'performance_reports':
                         reports_dttm_str = get_bookmark(state, stream_name, site, sub_type, start_date)
@@ -516,7 +524,7 @@ def sync(client, config, catalog, state):
                         bookmark_field=endpoint_config.get('bookmark_field'),
                         bookmark_type=endpoint_config.get('bookmark_type'),
                         data_key=endpoint_config.get('data_key', None),
-                        body_params=endpoint_config.get('body', None),
+                        body_params=body,
                         id_fields=endpoint_config.get('id_fields', None))
 
                     endpoint_total = endpoint_total + total_records

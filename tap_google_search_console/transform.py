@@ -1,4 +1,7 @@
 import re
+import singer
+
+LOGGER = singer.get_logger()
 
 # Convert camelCase to snake_case
 def convert(name):
@@ -33,10 +36,14 @@ def convert_json(this_json):
     return out
 
 
-# Remove "keys" node, if exists
+# Remove 'keys' node, if exists
 def remove_keys_nodes(this_json, path):
     new_json = this_json
-    result = new_json[path].pop("keys", None)
+    i = 0
+    for record in list(this_json[path]):
+        if record.get('keys', None):
+            new_json[path][i].pop('keys')
+        i = i + 1
     return new_json
 
 
@@ -44,8 +51,8 @@ def remove_keys_nodes(this_json, path):
 def denest_key_fields(this_json, path, dimensions_list):
     new_json = this_json
     i = 0
-    for record in this_json[path]:
-        for key in record:
+    for record in list(this_json[path]):
+        for key in list(record.keys()):
             if isinstance(record[key], list):
                 if key == 'keys':
                     dim_num = 0
@@ -56,7 +63,7 @@ def denest_key_fields(this_json, path, dimensions_list):
     return new_json
 
 
-# Denest keys values list to dimension_list keys
+# Add site_url to results
 def add_site_url(this_json, path, site):
     new_json = this_json
     i = 0
@@ -66,14 +73,68 @@ def add_site_url(this_json, path, site):
     return new_json
 
 
+# Add search_type to results
+def add_search_type(this_json, path, sub_type):
+    new_json = this_json
+    i = 0
+    for record in this_json[path]:
+        new_json[path][i]['search_type'] = sub_type
+        i = i + 1
+    return new_json
+
+
+# convert integer string to integer
+def string_to_integer(val):
+    try:
+        new_val = int(val)
+        return new_val
+    except:
+        return None
+
+
+def transform_sitemaps(this_json, path, site):
+    # add site_url to results
+    new_json = add_site_url(this_json, path, site)
+        
+    # convert string numbers to integers
+    int_fields_1 = ['errors', 'warnings']
+    int_fields_2 = ['submitted', 'indexed']
+    i = 0
+    for record in list(new_json[path]):
+        for int_field in int_fields_1:
+            if int_field in record:
+                val = record[int_field]
+                new_json[path][i][int_field] = string_to_integer(val)
+        if 'contents' in record:
+            c = 0
+            for content in list(record['contents']):
+                for int_field in int_fields_2:
+                    if int_field in content:
+                        val = content[int_field]
+                        new_json[path][i]['contents'][c][int_field] = string_to_integer(val)
+                c = c + 1
+        i = i + 1
+    return new_json
+
+
+def transform_reports(this_json, path, site, sub_type, dimensions_list):
+    # de-nest keys array to dimension fields
+    denested_json = denest_key_fields(this_json, path, dimensions_list)
+    # remove keys array node
+    keyless_json = remove_keys_nodes(denested_json, path)
+    # add site_url and search_type to results
+    new_json = add_search_type(add_site_url(keyless_json, path, site), path, sub_type)
+    return new_json
+
+
 # Run all transforms: convert camelCase to snake_case for fieldname keys,
-#   add site_url, denest key fields (dimension values), and remove keys node.
-def transform_json(this_json, path, site, dimensions_list):
+#  and stream-specific transforms for sitemaps and performance_reports.
+def transform_json(this_json, stream_name, path, site, sub_type, dimensions_list):
     converted_json = convert_json(this_json)
-    if path in ('rows', 'sitemaps'):
-        converted_json = add_site_url(converted_json, path, site)
-    new_json = converted_json
-    if path == 'rows':
-        denested_json = denest_key_fields(converted_json, path, dimensions_list)
-        new_json = remove_keys_nodes(denested_json, path)
+    if stream_name == 'sitemaps':
+        new_json = transform_sitemaps(converted_json, path, site)
+    elif stream_name == 'performance_reports':
+        new_json = transform_reports(converted_json, path, site, sub_type, dimensions_list)
+    else:
+        new_json = converted_json
     return new_json

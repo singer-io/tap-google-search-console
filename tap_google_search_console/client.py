@@ -159,7 +159,6 @@ class GoogleClient:
         # The refresh_token never expires and may be used many times to generate each access_token
         # Since the refresh_token does not expire, it is not included in get access_token response
         if self.__access_token is not None and self.__expires > datetime.utcnow():
-            LOGGER.info('Authorized, token expires = {}'.format(self.__expires))
             return
 
         headers = {}
