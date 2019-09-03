@@ -46,8 +46,8 @@ def write_bookmark(state, stream, site, sub_type, value):
     if site not in state['bookmarks'][stream]:
         state['bookmarks'][stream][site] = {}
     state['bookmarks'][stream][site][sub_type] = value
-    LOGGER.info('Write state for Stream: {}, Site: {}, Type: {}, \
-        value: {}'.format(stream, site, sub_type, value))
+    LOGGER.info('Write state for Stream: {}, Site: {}, Type: {}, value: {}'.format(
+        stream, site, sub_type, value))
     singer.write_state(state)
 
 
@@ -289,8 +289,7 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
                         parent_id = record.get(parent_id_field)
 
                         # sync_endpoint for child
-                        LOGGER.info('START Syncing Child Stream: {}, Parent Stream: {}, \
-                            Parent ID: {}, Site: {}, Type: {}'.format(
+                        LOGGER.info('START Syncing Child Stream: {}, Parent Stream: {}, Parent ID: {}, Site: {}, Type: {}'.format(
                                 child_stream_name,
                                 stream_name,
                                 parent_id,
@@ -320,8 +319,7 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
                             parent=child_endpoint_config.get('parent'),
                             parent_id=parent_id)
 
-                        LOGGER.info('START Syncing Child Stream: {}, Parent Stream: {}, \
-                            Parent ID: {}, Site: {}, Type: {}, Total Records: {}'.format(
+                        LOGGER.info('START Syncing Child Stream: {}, Parent Stream: {}, Parent ID: {}, Site: {}, Type: {}, Total Records: {}'.format(
                                 child_stream_name,
                                 stream_name,
                                 parent_id,
@@ -425,23 +423,23 @@ def sync(client, config, catalog, state):
     #   parent: On each of the children, the singular stream name for parent element
 
     endpoints = {
-        'sites': {
-            'path': 'sites/{}',
-            'data_key': 'site_entry',
-            'api_method': 'GET',
-            'params': {},
-            'pagination': 'none',
-            'sub_types': ['self']
-        },
+        # 'sites': {
+        #     'path': 'sites/{}',
+        #     'data_key': 'site_entry',
+        #     'api_method': 'GET',
+        #     'params': {},
+        #     'pagination': 'none',
+        #     'sub_types': ['self']
+        # },
 
-        'sitemaps': {
-            'path': 'sites/{}/sitemaps',
-            'data_key': 'sitemap',
-            'api_method': 'GET',
-            'params': {},
-            'pagination': 'none',
-            'sub_types': ['self']
-        },
+        # 'sitemaps': {
+        #     'path': 'sites/{}/sitemaps',
+        #     'data_key': 'sitemap',
+        #     'api_method': 'GET',
+        #     'params': {},
+        #     'pagination': 'none',
+        #     'sub_types': ['self']
+        # },
 
         'performance_reports': {
             'path': 'sites/{}/searchAnalytics/query',
@@ -516,7 +514,7 @@ def sync(client, config, catalog, state):
                             'endDate': now_dt_str
                         }
 
-                    LOGGER.info('START Syncing Stream: {}, Site: {}, Type: {}'.format(\
+                    LOGGER.info('START Syncing Stream: {}, Site: {}, Type: {}'.format(
                         stream_name, site, sub_type))
                     total_records = sync_endpoint(
                         client=client,
@@ -541,7 +539,7 @@ def sync(client, config, catalog, state):
 
                     endpoint_total = endpoint_total + total_records
                     site_total = site_total + total_records
-                    LOGGER.info('FINISHED Syncing Stream: {}, Site: {}, Type: {}'.format(\
+                    LOGGER.info('FINISHED Syncing Stream: {}, Site: {}, Type: {}'.format(
                         stream_name, site, sub_type))
                     LOGGER.info('  Records Synced for Type: {}'.format(total_records))
                 LOGGER.info('FINISHED Syncing Stream: {}, Site: {}'.format(stream_name, site))

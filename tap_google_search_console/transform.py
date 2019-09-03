@@ -49,6 +49,14 @@ def remove_keys_nodes(this_json, path):
     return new_json
 
 
+# Create MD5 hash key for data element
+def hash_data(data):
+    # Prepare the project id hash
+    hashId = hashlib.md5()
+    hashId.update(repr(data).encode('utf-8'))
+    return hashId.hexdigest()
+
+
 # Denest keys values list to dimension_list keys
 def denest_key_fields(this_json, path, dimensions_list):
     new_json = this_json
@@ -58,7 +66,7 @@ def denest_key_fields(this_json, path, dimensions_list):
             if isinstance(record[key], list):
                 if key == 'keys':
                     dim_num = 0
-                    dims_md5 = hashlib.md5(json.dumps(record[key], sort_keys=True)).hexdigest()
+                    dims_md5 = str(hash_data(json.dumps(record[key], sort_keys=True)))
                     new_json[path][i]['dimensions_hash_key'] = dims_md5
                     for dimension in dimensions_list:
                         new_json[path][i][dimension] = record[key][dim_num]
