@@ -43,6 +43,10 @@ def get_bookmark(state, stream, site, sub_type, default):
 def write_bookmark(state, stream, site, sub_type, value):
     if 'bookmarks' not in state:
         state['bookmarks'] = {}
+    if stream not in state['bookmarks']:
+        state['bookmarks'][stream] = {}
+    if site not in state['bookmarks'][stream]:
+        state['bookmarks'][stream][site] = {}
     state['bookmarks'][stream][site][sub_type] = value
     LOGGER.info('Write state for Stream: {}, Site: {}, Type: {}, \
         value: {}'.format(stream, site, sub_type, value))

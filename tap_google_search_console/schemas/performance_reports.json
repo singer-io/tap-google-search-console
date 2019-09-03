@@ -26,19 +26,19 @@
     },
     "clicks": {
       "type": ["null", "number"],
-      "multipleOf": 1e-16
+      "multipleOf": 1e-20
     },
     "impressions": {
       "type": ["null", "number"],
-      "multipleOf": 1e-16
+      "multipleOf": 1e-20
     },
     "ctr": {
       "type": ["null", "number"],
-      "multipleOf": 1e-16
+      "multipleOf": 1e-20
     },
     "position": {
       "type": ["null", "number"],
-      "multipleOf": 1e-16
+      "multipleOf": 1e-20
     }
   }
 }
