@@ -24,14 +24,15 @@ This tap:
 
 [**sitemaps (GET)**](https://developers.google.com/webmaster-tools/search-console-api-original/v3/sitemaps/list)
 - Endpoint: https://www.googleapis.com/webmasters/v3/sites/{site_url}/sitemaps
-- Primary keys: site_url, path, last_submitted, last_downloaded
+- Primary keys: site_url, path, last_submitted
 - Foreign keys: site_url
 - Replication strategy: Full (all sitemaps for sites in config site_urls)
 - Transformations: Fields camelCase to snake_case
 
 [**performance_reports (POST)**](https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query)
 - Endpoint: https://www.googleapis.com/webmasters/v3/sites/{site_url}/searchAnalytics/query
-- Primary keys: site_url, search_type, date, country, device, page, query
+- Primary keys: site_url, search_type, dimensions_hash_key
+  - Dimensions: date, country, device, page, query (based on catalog selection)
 - Foreign keys: site_url
 - Replication strategy: Incremental (query filtered based on date)
   - Filters: site_url, searchType, startDate (bookmark), endDate (current date) 
@@ -148,7 +149,7 @@ The [**Google Search Console Setup & Authentication**](https://drive.google.com/
     ```
     Pylint test resulted in the following score:
     ```bash
-    Your code has been rated at 9.87/10.
+    Your code has been rated at 9.82/10.
     ```
 
     To [check the tap](https://github.com/singer-io/singer-tools#singer-check-tap) and verify working:
@@ -159,7 +160,20 @@ The [**Google Search Console Setup & Authentication**](https://drive.google.com/
     Check tap resulted in the following:
     ```bash
     The output is valid.
-    TBD
+    It contained 4361 messages for 3 streams.
+
+    3 schema messages
+    4340 record messages
+    18 state messages
+
+    Details by stream:
+    +---------------------+---------+---------+
+    | stream              | records | schemas |
+    +---------------------+---------+---------+
+    | sitemaps            | 4       | 1       |
+    | sites               | 4       | 1       |
+    | performance_reports | 4332    | 1       |
+    +---------------------+---------+---------+
     ```
 ---
 

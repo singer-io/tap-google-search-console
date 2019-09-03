@@ -1,6 +1,4 @@
 import json
-from datetime import datetime, timedelta
-from collections import Counter
 from urllib.parse import quote
 import singer
 from singer import metrics, metadata, Transformer, utils
@@ -82,10 +80,10 @@ def process_records(catalog, #pylint: disable=too-many-branches
 
             # Transform record for Singer.io
             with Transformer() as transformer:
-                transformed_record = transformer.transform(record,
-                                               schema,
-                                               stream_metadata)
-
+                transformed_record = transformer.transform(
+                    record,
+                    schema,
+                    stream_metadata)
                 # Reset max_bookmark_value to new value if higher
                 if bookmark_field and (bookmark_field in transformed_record):
                     if (max_bookmark_value is None) or \
@@ -96,20 +94,23 @@ def process_records(catalog, #pylint: disable=too-many-branches
                     if bookmark_type == 'integer':
                         # Keep only records whose bookmark is after the last_integer
                         if transformed_record[bookmark_field] >= last_integer:
-                            write_record(stream_name, transformed_record, time_extracted=time_extracted)
+                            write_record(stream_name, transformed_record, \
+                                time_extracted=time_extracted)
                             counter.increment()
                     elif bookmark_type == 'datetime':
                         last_dttm = transform_datetime(last_datetime)
                         bookmark_dttm = transform_datetime(transformed_record[bookmark_field])
                         # Keep only records whose bookmark is after the last_datetime
                         if bookmark_dttm >= last_dttm:
-                            write_record(stream_name, transformed_record, time_extracted=time_extracted)
+                            write_record(stream_name, transformed_record, \
+                                time_extracted=time_extracted)
                             counter.increment()
                 else:
                     write_record(stream_name, transformed_record, time_extracted=time_extracted)
                     counter.increment()
 
-        return max_bookmark_value, counter.value
+        LOGGER.info('Process {} records'.format(counter.value))
+        return max_bookmark_value
 
 
 # Sync a specific parent or child endpoint.
@@ -145,8 +146,6 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
     else:
         last_datetime = get_bookmark(state, stream_name, site, sub_type, start_date)
         max_bookmark_value = last_datetime
-
-    write_schema(catalog, stream_name)
 
     # Pagination: loop thru all pages of data
     # Pagination types: none, body, params
@@ -225,7 +224,7 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
 
         # Transform data with transform_json from transform.py
         transformed_data = [] # initialize the record list
-        
+
         if data_key not in data:
             data_list = []
             data_list.append(data)
@@ -247,7 +246,7 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
             return 0 # No data results
 
         # Process records and get the max_bookmark_value and record_count for the set of records
-        max_bookmark_value, record_count = process_records(
+        max_bookmark_value = process_records(
             catalog=catalog,
             stream_name=stream_name,
             records=transformed_data,
@@ -262,16 +261,20 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
 
         # set total_records for pagination
         total_records = offset + len(transformed_data)
-        LOGGER.info('total_records: {}, offset: {}, length: {}'.format(total_records, offset, len(transformed_data)))
+        LOGGER.info('total_records: {}, offset: {}, length: {}'.format(
+            total_records,
+            offset,
+            len(transformed_data)))
 
         # Loop thru parent batch records for each children objects (if should stream)
         # NOT USED FOR THIS TAP; no current endpoints have children
         children = endpoint_config.get('children')
         if children:
             for child_stream_name, child_endpoint_config in children.items():
-                should_stream, last_stream_child = should_sync_stream(get_selected_streams(catalog),
-                                                            None,
-                                                            child_stream_name)
+                should_stream, last_stream_child = should_sync_stream(
+                    get_selected_streams(catalog),
+                    None,
+                    child_stream_name)
                 if should_stream:
                     # For each parent record
                     for record in transformed_data:
@@ -286,13 +289,13 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
                         parent_id = record.get(parent_id_field)
 
                         # sync_endpoint for child
-                        LOGGER.info('START Syncing Child Stream: {}, Parent Stream: {}, Parent ID: {}, \
-                            Site: {}, Type: {}'.format(
-                            child_stream_name,
-                            stream_name,
-                            parent_id,
-                            site,
-                            sub_type))
+                        LOGGER.info('START Syncing Child Stream: {}, Parent Stream: {}, \
+                            Parent ID: {}, Site: {}, Type: {}'.format(
+                                child_stream_name,
+                                stream_name,
+                                parent_id,
+                                site,
+                                sub_type))
                         child_path = child_endpoint_config.get('path').format(str(parent_id))
                         child_total_records = sync_endpoint(
                             client=client,
@@ -317,15 +320,14 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
                             parent=child_endpoint_config.get('parent'),
                             parent_id=parent_id)
 
-                            
-                        LOGGER.info('START Syncing Child Stream: {}, Parent Stream: {}, Parent ID: {}, \
-                            Site: {}, Type: {}, Total Records: {}'.format(
-                            child_stream_name,
-                            stream_name,
-                            parent_id,
-                            site,
-                            sub_type,
-                            child_total_records))
+                        LOGGER.info('START Syncing Child Stream: {}, Parent Stream: {}, \
+                            Parent ID: {}, Site: {}, Type: {}, Total Records: {}'.format(
+                                child_stream_name,
+                                stream_name,
+                                parent_id,
+                                site,
+                                sub_type,
+                                child_total_records))
 
         # Update the state with the max_bookmark_value for the stream, site, sub_type
         if bookmark_field:
@@ -412,7 +414,8 @@ def sync(client, config, catalog, state):
     #   api_method: GET or POST (default GET)
     #   params: Query, sort, and other endpoint specific parameters
     #   pagination: types are none, body, params (default none)
-    #   sub_types: list of sub_types for endpoint looping; if no sub_types, set to 'sub_types': ['self']
+    #   sub_types: list of sub_types for endpoint looping;
+    #        if no sub_types, set to 'sub_types': ['self']
     #   bookmark_query_field: Typically a date-time field used for filtering the query
     #   bookmark_field: Replication key field, typically a date-time, used for filtering the results
     #        and setting the state
@@ -429,27 +432,27 @@ def sync(client, config, catalog, state):
             'params': {},
             'pagination': 'none',
             'sub_types': ['self']
-        } ,
+        },
 
-        # 'sitemaps': {
-        #     'path': 'sites/{}/sitemaps',
-        #     'data_key': 'sitemap',
-        #     'api_method': 'GET',
-        #     'params': {},
-        #     'pagination': 'none',
-        #     'sub_types': ['self']
-        # },
+        'sitemaps': {
+            'path': 'sites/{}/sitemaps',
+            'data_key': 'sitemap',
+            'api_method': 'GET',
+            'params': {},
+            'pagination': 'none',
+            'sub_types': ['self']
+        },
 
-        # 'performance_reports': {
-        #     'path': 'sites/{}/searchAnalytics/query',
-        #     'data_key': 'rows',
-        #     'api_method': 'POST',
-        #     'params': {},
-        #     'bookmark_field': 'date',
-        #     'bookmark_type': 'datetime',
-        #     'pagination': 'body',
-        #     'sub_types': ['web', 'image', 'video']
-        # }
+        'performance_reports': {
+            'path': 'sites/{}/searchAnalytics/query',
+            'data_key': 'rows',
+            'api_method': 'POST',
+            'params': {},
+            'bookmark_field': 'date',
+            'bookmark_type': 'datetime',
+            'pagination': 'body',
+            'sub_types': ['web', 'image', 'video']
+        }
 
     }
 
@@ -465,6 +468,7 @@ def sync(client, config, catalog, state):
         if should_stream:
             LOGGER.info('STARTED Syncing: {}'.format(stream_name))
             update_currently_syncing(state, stream_name)
+            write_schema(catalog, stream_name)
             endpoint_total = 0
             # Initialize body
             body = endpoint_config.get('body', {})
@@ -487,7 +491,7 @@ def sync(client, config, catalog, state):
                     for stream in catalog_dict['streams']:
                         if stream['stream'] == 'performance_reports':
                             for entry in stream['metadata']:
-                                if entry['metadata']['selected'] == True:
+                                if entry['metadata']['selected']:
                                     if entry['breadcrumb'] and entry['breadcrumb'] is not None:
                                         for field in entry['breadcrumb']:
                                             if field != 'properties':
@@ -498,7 +502,12 @@ def sync(client, config, catalog, state):
                 sub_types = endpoint_config.get('sub_types', [])
                 for sub_type in sub_types:
                     if stream_name == 'performance_reports':
-                        reports_dttm_str = get_bookmark(state, stream_name, site, sub_type, start_date)
+                        reports_dttm_str = get_bookmark(
+                            state,
+                            stream_name,
+                            site,
+                            sub_type,
+                            start_date)
                         reports_dt_str = transform_datetime(reports_dttm_str)[:10]
                         body = {
                             'dimensions': dimensions_list,

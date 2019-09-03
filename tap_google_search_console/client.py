@@ -1,4 +1,3 @@
-import json
 from datetime import datetime, timedelta
 import backoff
 import requests
@@ -128,7 +127,7 @@ def raise_for_error(response):
         except (ValueError, TypeError):
             raise GoogleError(error)
 
-class GoogleClient:
+class GoogleClient: # pylint: disable=too-many-instance-attributes
     def __init__(self,
                  client_id,
                  client_secret,
@@ -191,7 +190,8 @@ class GoogleClient:
                           (Server5xxError, ConnectionError, Server429Error),
                           max_tries=7,
                           factor=3)
-    # Rate Limit: https://developers.google.com/webmaster-tools/search-console-api-original/v3/limits
+    # Rate Limit:
+    #  https://developers.google.com/webmaster-tools/search-console-api-original/v3/limits
     @utils.ratelimit(1200, 60)
     def request(self, method, path=None, url=None, **kwargs):
 

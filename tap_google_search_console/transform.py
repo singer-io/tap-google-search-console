@@ -1,4 +1,6 @@
 import re
+import hashlib
+import json
 import singer
 
 LOGGER = singer.get_logger()
@@ -56,8 +58,10 @@ def denest_key_fields(this_json, path, dimensions_list):
             if isinstance(record[key], list):
                 if key == 'keys':
                     dim_num = 0
+                    dims_md5 = hashlib.md5(json.dumps(record[key], sort_keys=True)).hexdigest()
+                    new_json[path][i]['dimensions_hash_key'] = dims_md5
                     for dimension in dimensions_list:
-                        new_json[path][i][dimension] = record[key][dim_num] 
+                        new_json[path][i][dimension] = record[key][dim_num]
                         dim_num = dim_num + 1
         i = i + 1
     return new_json
@@ -88,14 +92,13 @@ def string_to_integer(val):
     try:
         new_val = int(val)
         return new_val
-    except:
+    except ValueError:
         return None
 
 
 def transform_sitemaps(this_json, path, site):
     # add site_url to results
     new_json = add_site_url(this_json, path, site)
-        
     # convert string numbers to integers
     int_fields_1 = ['errors', 'warnings']
     int_fields_2 = ['submitted', 'indexed']
@@ -106,13 +109,13 @@ def transform_sitemaps(this_json, path, site):
                 val = record[int_field]
                 new_json[path][i][int_field] = string_to_integer(val)
         if 'contents' in record:
-            c = 0
+            con_num = 0
             for content in list(record['contents']):
                 for int_field in int_fields_2:
                     if int_field in content:
                         val = content[int_field]
-                        new_json[path][i]['contents'][c][int_field] = string_to_integer(val)
-                c = c + 1
+                        new_json[path][i]['contents'][con_num][int_field] = string_to_integer(val)
+                con_num = con_num + 1
         i = i + 1
     return new_json
 

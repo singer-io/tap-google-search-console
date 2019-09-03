@@ -10,11 +10,11 @@ STREAMS = {
         'replication_method': 'FULL_TABLE',
     },
     'sitemaps': {
-        'key_properties': ['site_url', 'path', 'last_submitted', 'last_downloaded'],
+        'key_properties': ['site_url', 'path', 'last_submitted'],
         'replication_method': 'FULL_TABLE',
     },
     'performance_reports': {
-        'key_properties': ['site_url', 'search_type', 'date', 'country', 'device', 'page', 'query'],
+        'key_properties': ['site_url', 'search_type', 'dimensions_hash_key'],
         'replication_method': 'INCREMENTAL',
         'replication_keys': ['date'],
     }
