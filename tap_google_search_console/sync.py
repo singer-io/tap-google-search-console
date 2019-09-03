@@ -224,17 +224,16 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
             return 0 # No data results
 
         # Transform data with transform_json from transform.py
-        # LOGGER.info('data = {}'.format(data)) # TESTING, comment out
         transformed_data = [] # initialize the record list
-        if data_key is None:
-            transformed_data = transform_json(
-                data,
-                stream_name,
-                stream_name,
-                site,
-                sub_type,
-                dimensions_list)
-        elif data_key in data:
+        
+        if data_key not in data:
+            data_list = []
+            data_list.append(data)
+            data_dict = {}
+            data_dict[data_key] = data_list
+            data = data_dict
+        # LOGGER.info('data = {}'.format(data)) # TESTING, comment out
+        if data_key in data:
             transformed_data = transform_json(
                 data,
                 stream_name,
@@ -430,27 +429,27 @@ def sync(client, config, catalog, state):
             'params': {},
             'pagination': 'none',
             'sub_types': ['self']
-        },
+        } ,
 
-        'sitemaps': {
-            'path': 'sites/{}/sitemaps',
-            'data_key': 'sitemap',
-            'api_method': 'GET',
-            'params': {},
-            'pagination': 'none',
-            'sub_types': ['self']
-        },
+        # 'sitemaps': {
+        #     'path': 'sites/{}/sitemaps',
+        #     'data_key': 'sitemap',
+        #     'api_method': 'GET',
+        #     'params': {},
+        #     'pagination': 'none',
+        #     'sub_types': ['self']
+        # },
 
-        'performance_reports': {
-            'path': 'sites/{}/searchAnalytics/query',
-            'data_key': 'rows',
-            'api_method': 'POST',
-            'params': {},
-            'bookmark_field': 'date',
-            'bookmark_type': 'datetime',
-            'pagination': 'body',
-            'sub_types': ['web', 'image', 'video']
-        }
+        # 'performance_reports': {
+        #     'path': 'sites/{}/searchAnalytics/query',
+        #     'data_key': 'rows',
+        #     'api_method': 'POST',
+        #     'params': {},
+        #     'bookmark_field': 'date',
+        #     'bookmark_type': 'datetime',
+        #     'pagination': 'body',
+        #     'sub_types': ['web', 'image', 'video']
+        # }
 
     }
 

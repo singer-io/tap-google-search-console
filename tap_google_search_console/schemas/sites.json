@@ -6,8 +6,7 @@
       "type": ["null", "string"]
     },
     "site_url": {
-      "type": ["null", "string"],
-      "format": "date-time"
+      "type": ["null", "string"]
     }
   }
 }
