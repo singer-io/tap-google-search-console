@@ -87,7 +87,7 @@ def process_records(catalog, #pylint: disable=too-many-branches
                 # Reset max_bookmark_value to new value if higher
                 if bookmark_field and (bookmark_field in transformed_record):
                     if (max_bookmark_value is None) or \
-                        (transformed_record[bookmark_field] > max_bookmark_value):
+                        (transformed_record[bookmark_field] > transform_datetime(max_bookmark_value)):
                         max_bookmark_value = transformed_record[bookmark_field]
 
                 if bookmark_field and (bookmark_field in transformed_record):
@@ -102,14 +102,16 @@ def process_records(catalog, #pylint: disable=too-many-branches
                         bookmark_dttm = transform_datetime(transformed_record[bookmark_field])
                         # Keep only records whose bookmark is after the last_datetime
                         if bookmark_dttm >= last_dttm:
+                            # LOGGER.info('record1: {}'.format(record)) # TESTING, comment out
                             write_record(stream_name, transformed_record, \
                                 time_extracted=time_extracted)
                             counter.increment()
                 else:
+                    # LOGGER.info('record2: {}'.format(record)) # TESTING, comment out
                     write_record(stream_name, transformed_record, time_extracted=time_extracted)
                     counter.increment()
 
-        LOGGER.info('Process {} records'.format(counter.value))
+        LOGGER.info('Stream: {}, Processed {} records'.format(stream_name, counter.value))
         return max_bookmark_value
 
 
@@ -225,7 +227,8 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
         # Transform data with transform_json from transform.py
         transformed_data = [] # initialize the record list
 
-        if data_key not in data:
+        # Sites endpoint returns a single record dictionary (not a list)
+        if stream_name == 'sites':
             data_list = []
             data_list.append(data)
             data_dict = {}
@@ -233,6 +236,7 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
             data = data_dict
         # LOGGER.info('data = {}'.format(data)) # TESTING, comment out
         if data_key in data:
+            LOGGER.info('Number of raw data records: {}'.format(len(data[data_key])))
             transformed_data = transform_json(
                 data,
                 stream_name,
@@ -240,6 +244,9 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
                 site,
                 sub_type,
                 dimensions_list)[data_key]
+            LOGGER.info('Number of transformed_data records: {}'.format(len(transformed_data)))
+        else:
+            LOGGER.info('Number of raw data records: 0')
         # LOGGER.info('transformed_data = {}'.format(transformed_data))  # TESTING, comment out
         if not transformed_data or transformed_data is None:
             LOGGER.info('xxx NO TRANSFORMED DATA xxx')
