@@ -430,23 +430,23 @@ def sync(client, config, catalog, state):
     #   parent: On each of the children, the singular stream name for parent element
 
     endpoints = {
-        # 'sites': {
-        #     'path': 'sites/{}',
-        #     'data_key': 'site_entry',
-        #     'api_method': 'GET',
-        #     'params': {},
-        #     'pagination': 'none',
-        #     'sub_types': ['self']
-        # },
+        'sites': {
+            'path': 'sites/{}',
+            'data_key': 'site_entry',
+            'api_method': 'GET',
+            'params': {},
+            'pagination': 'none',
+            'sub_types': ['self']
+        },
 
-        # 'sitemaps': {
-        #     'path': 'sites/{}/sitemaps',
-        #     'data_key': 'sitemap',
-        #     'api_method': 'GET',
-        #     'params': {},
-        #     'pagination': 'none',
-        #     'sub_types': ['self']
-        # },
+        'sitemaps': {
+            'path': 'sites/{}/sitemaps',
+            'data_key': 'sitemap',
+            'api_method': 'GET',
+            'params': {},
+            'pagination': 'none',
+            'sub_types': ['self']
+        },
 
         'performance_reports': {
             'path': 'sites/{}/searchAnalytics/query',
