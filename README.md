@@ -30,6 +30,7 @@ This tap:
 - Transformations: Fields camelCase to snake_case, string-integers to integers
 
 [**performance_reports (POST)**](https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query)
+- [Performance Report Description](https://support.google.com/webmasters/answer/7576553?hl=en)
 - Endpoint: https://www.googleapis.com/webmasters/v3/sites/{site_url}/searchAnalytics/query
 - Primary keys: site_url, search_type, date, dimensions_hash_key
   - Dimensions: date (required), country, device, page, query (based on catalog selection)
@@ -37,7 +38,7 @@ This tap:
 - Foreign keys: site_url
 - Replication strategy: Incremental (query filtered based on date)
   - Filters: site_url, searchType, startDate (bookmark), endDate (current date) 
-  - Sort by: date: DESC
+  - Sort by: date ASC (when date is a dimension, results are sorted by date ascending)
   - Bookmark: date (date-time)
 - Transformations: Fields camelCase to snake_case, denest dimensions key/values, remove keys list node
  
