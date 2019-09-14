@@ -27,12 +27,13 @@ This tap:
 - Primary keys: site_url, path, last_submitted
 - Foreign keys: site_url
 - Replication strategy: Full (all sitemaps for sites in config site_urls)
-- Transformations: Fields camelCase to snake_case
+- Transformations: Fields camelCase to snake_case, string-integers to integers
 
 [**performance_reports (POST)**](https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query)
 - Endpoint: https://www.googleapis.com/webmasters/v3/sites/{site_url}/searchAnalytics/query
-- Primary keys: site_url, search_type, dimensions_hash_key
-  - Dimensions: date, country, device, page, query (based on catalog selection)
+- Primary keys: site_url, search_type, date, dimensions_hash_key
+  - Dimensions: date (required), country, device, page, query (based on catalog selection)
+  - dimensions_hash_key: MD5 hash key of ordered list of selected dimension values
 - Foreign keys: site_url
 - Replication strategy: Incremental (query filtered based on date)
   - Filters: site_url, searchType, startDate (bookmark), endDate (current date) 

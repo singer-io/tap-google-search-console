@@ -14,7 +14,7 @@ STREAMS = {
         'replication_method': 'FULL_TABLE',
     },
     'performance_reports': {
-        'key_properties': ['site_url', 'search_type', 'dimensions_hash_key'],
+        'key_properties': ['site_url', 'search_type', 'date', 'dimensions_hash_key'],
         'replication_method': 'INCREMENTAL',
         'replication_keys': ['date'],
     }

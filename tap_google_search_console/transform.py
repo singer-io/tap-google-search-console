@@ -95,39 +95,6 @@ def add_search_type(this_json, path, sub_type):
     return new_json
 
 
-# convert integer string to integer
-def string_to_integer(val):
-    try:
-        new_val = int(val)
-        return new_val
-    except ValueError:
-        return None
-
-
-def transform_sitemaps(this_json, path, site):
-    # add site_url to results
-    new_json = add_site_url(this_json, path, site)
-    # convert string numbers to integers
-    int_fields_1 = ['errors', 'warnings']
-    int_fields_2 = ['submitted', 'indexed']
-    i = 0
-    for record in list(new_json[path]):
-        for int_field in int_fields_1:
-            if int_field in record:
-                val = record[int_field]
-                new_json[path][i][int_field] = string_to_integer(val)
-        if 'contents' in record:
-            con_num = 0
-            for content in list(record['contents']):
-                for int_field in int_fields_2:
-                    if int_field in content:
-                        val = content[int_field]
-                        new_json[path][i]['contents'][con_num][int_field] = string_to_integer(val)
-                con_num = con_num + 1
-        i = i + 1
-    return new_json
-
-
 def transform_reports(this_json, path, site, sub_type, dimensions_list):
     # de-nest keys array to dimension fields
     denested_json = denest_key_fields(this_json, path, dimensions_list)
@@ -142,9 +109,7 @@ def transform_reports(this_json, path, site, sub_type, dimensions_list):
 #  and stream-specific transforms for sitemaps and performance_reports.
 def transform_json(this_json, stream_name, path, site, sub_type, dimensions_list):
     converted_json = convert_json(this_json)
-    if stream_name == 'sitemaps':
-        new_json = transform_sitemaps(converted_json, path, site)
-    elif stream_name == 'performance_reports':
+    if stream_name == 'performance_reports':
         new_json = transform_reports(converted_json, path, site, sub_type, dimensions_list)
     else:
         new_json = converted_json
