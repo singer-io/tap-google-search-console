@@ -1,25 +1,10 @@
 import os
 import json
 from singer import metadata
+from tap_google_search_console.streams import STREAMS
 
 # Reference:
 # https://github.com/singer-io/getting-started/blob/master/docs/DISCOVERY_MODE.md#Metadata
-STREAMS = {
-    'sites': {
-        'key_properties': ['site_url'],
-        'replication_method': 'FULL_TABLE',
-    },
-    'sitemaps': {
-        'key_properties': ['site_url', 'path', 'last_submitted'],
-        'replication_method': 'FULL_TABLE',
-    },
-    'performance_reports': {
-        'key_properties': ['site_url', 'search_type', 'date', 'dimensions_hash_key'],
-        'replication_method': 'INCREMENTAL',
-        'replication_keys': ['date'],
-    }
-}
-
 
 def get_abs_path(path):
     return os.path.join(os.path.dirname(os.path.realpath(__file__)), path)

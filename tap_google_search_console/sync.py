@@ -3,6 +3,7 @@ from urllib.parse import quote
 import singer
 from singer import metrics, metadata, Transformer, utils
 from tap_google_search_console.transform import transform_json
+from tap_google_search_console.streams import STREAMS
 
 LOGGER = singer.get_logger()
 BASE_URL = 'https://www.googleapis.com/webmasters/v3'
@@ -19,7 +20,8 @@ def write_schema(catalog, stream_name):
 
 def write_record(stream_name, record, time_extracted):
     try:
-        singer.write_record(stream_name, record, time_extracted=time_extracted)
+        singer.messages.write_record(stream_name, record, time_extracted=time_extracted)
+        # singer.write_record(stream_name, record, time_extracted=time_extracted)
     except OSError as err:
         LOGGER.info('OS Error writing record for: {}'.format(stream_name))
         LOGGER.info('record: {}'.format(record))
@@ -126,7 +128,8 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
                   bookmark_field=None,
                   bookmark_type=None,
                   data_key=None,
-                  body_params=None):
+                  body_params=None,
+                  id_fields=None):
 
     # Get the latest bookmark for the stream and set the last_integer/datetime
     last_datetime = None
@@ -234,6 +237,10 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
         if not transformed_data or transformed_data is None:
             LOGGER.info('xxx NO TRANSFORMED DATA xxx')
             return 0 # No data results
+        for record in transformed_data:
+            for key in id_fields:
+                if not record.get(key):
+                    LOGGER.info('xxx Missing key {} in record: {}'.format(key, record))
 
         # Process records and get the max_bookmark_value and record_count for the set of records
         max_bookmark_value = process_records(
@@ -293,46 +300,6 @@ def update_currently_syncing(state, stream_name):
 
 
 def sync(client, config, catalog, state):
-    # endpoints: API URL endpoints to be called
-    # properties:
-    #   <root node>: Plural stream name for the endpoint
-    #   path: API endpoint relative path, when added to the base URL, creates the full path
-    #   data_key: JSON element containing the records for the endpoint
-    #   api_method: GET or POST; default = 'GET'
-    #   params: Query, sort, and other endpoint specific parameters; default = {}
-    #   pagination: types are none, body, params; default = 'none'
-    #       none = no pagination
-    #       body = POST has startRow and rowLimit in body payload
-    #       params = GET has startRow and rowLimit in URL query params
-    #   sub_types: list of sub_types for endpoint looping; delfault = ['self']
-    #   bookmark_field: Replication key field, typically a date-time, used for filtering the results
-    #        and setting the state
-    #   bookmark_type: Data type for bookmark, integer or datetime
-
-    endpoints = {
-        'sites': {
-            'path': 'sites/{}',
-            'data_key': 'site_entry',
-            'api_method': 'GET'
-        },
-
-        'sitemaps': {
-            'path': 'sites/{}/sitemaps',
-            'data_key': 'sitemap',
-            'api_method': 'GET'
-        },
-
-        'performance_reports': {
-            'path': 'sites/{}/searchAnalytics/query',
-            'data_key': 'rows',
-            'api_method': 'POST',
-            'bookmark_field': 'date',
-            'bookmark_type': 'datetime',
-            'pagination': 'body',
-            'sub_types': ['web', 'image', 'video']
-        }
-    }
-
     if 'start_date' in config:
         start_date = config['start_date']
 
@@ -356,7 +323,8 @@ def sync(client, config, catalog, state):
         LOGGER.info('STARTED Syncing: {}'.format(stream_name))
         update_currently_syncing(state, stream_name)
         write_schema(catalog, stream_name)
-        endpoint_config = endpoints[stream_name]
+        endpoint_config = STREAMS[stream_name]
+        bookmark_field = next(iter(endpoint_config.get('replication_keys', [])), None)
         endpoint_total = 0
         # Initialize body
         body = endpoint_config.get('body', {})
@@ -416,10 +384,11 @@ def sync(client, config, catalog, state):
                     api_method=endpoint_config.get('api_method', 'GET'),
                     pagination=endpoint_config.get('pagination', 'none'),
                     static_params=endpoint_config.get('params', {}),
-                    bookmark_field=endpoint_config.get('bookmark_field'),
+                    bookmark_field=bookmark_field,
                     bookmark_type=endpoint_config.get('bookmark_type'),
                     data_key=endpoint_config.get('data_key', None),
-                    body_params=body)
+                    body_params=body,
+                    id_fields=endpoint_config.get('key_properties'))
 
                 endpoint_total = endpoint_total + total_records
                 site_total = site_total + total_records

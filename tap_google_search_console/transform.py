@@ -109,7 +109,9 @@ def transform_reports(this_json, path, site, sub_type, dimensions_list):
 #  and stream-specific transforms for sitemaps and performance_reports.
 def transform_json(this_json, stream_name, path, site, sub_type, dimensions_list):
     converted_json = convert_json(this_json)
-    if stream_name == 'performance_reports':
+    if stream_name == 'sitemaps':
+        new_json = add_site_url(converted_json, path, site)
+    elif stream_name == 'performance_reports':
         new_json = transform_reports(converted_json, path, site, sub_type, dimensions_list)
     else:
         new_json = converted_json
