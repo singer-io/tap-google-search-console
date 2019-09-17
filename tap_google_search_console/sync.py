@@ -21,7 +21,6 @@ def write_schema(catalog, stream_name):
 def write_record(stream_name, record, time_extracted):
     try:
         singer.messages.write_record(stream_name, record, time_extracted=time_extracted)
-        # singer.write_record(stream_name, record, time_extracted=time_extracted)
     except OSError as err:
         LOGGER.info('OS Error writing record for: {}'.format(stream_name))
         LOGGER.info('record: {}'.format(record))
