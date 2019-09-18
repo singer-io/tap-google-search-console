@@ -49,7 +49,12 @@ def write_bookmark(state, stream, site, sub_type, value):
     state['bookmarks'][stream][site][sub_type] = value
     LOGGER.info('Write state for Stream: {}, Site: {}, Type: {}, value: {}'.format(
         stream, site, sub_type, value))
-    singer.write_state(state)
+    try:
+        singer.messages.write_state(state)
+    except OSError as err:
+        LOGGER.info('OS Error writing State for: {}'.format(stream))
+        LOGGER.info('state: {}'.format(state))
+        raise err
 
 
 def transform_datetime(this_dttm):
@@ -295,7 +300,12 @@ def update_currently_syncing(state, stream_name):
         del state['currently_syncing']
     else:
         singer.set_currently_syncing(state, stream_name)
-    singer.write_state(state)
+    try:
+        singer.messages.write_state(state)
+    except OSError as err:
+        LOGGER.info('OS Error writing Currently Syncing State for: {}'.format(stream_name))
+        LOGGER.info('state: {}'.format(state))
+        raise err
 
 
 def sync(client, config, catalog, state):
