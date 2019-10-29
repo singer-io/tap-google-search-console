@@ -17,3 +17,6 @@ venv/
 build/
 tap_google_search_console/.vscode/settings.json
 *.ipynb
+.DS_Store
+test_configuration.py
+tap_target_commands.sh

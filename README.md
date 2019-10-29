@@ -11,6 +11,12 @@ This tap:
   - [Sites](https://developers.google.com/webmaster-tools/search-console-api-original/v3/sites/get)
   - [Sitemaps](https://developers.google.com/webmaster-tools/search-console-api-original/v3/sitemaps/list)
   - [Performance Reports](https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query)
+    - Custom (Summary for Site and Search Type by any combination of Date + Country, Device, Page, Query)
+    - Date (Summary for Site and Search Type by Date)
+    - Country (Summary for Site and Search Type by Date and Country)
+    - Device (Summary for Site and Search Type by Date and Device)
+    - Page (Summary for Site and Search Type by Date and Page)
+    - Query (Summary for Site and Search Type by Date and Query)
 - Outputs the schema for each resource
 - Incrementally pulls data based on the input state
 
@@ -29,7 +35,18 @@ This tap:
 - Replication strategy: Full (all sitemaps for sites in config site_urls)
 - Transformations: Fields camelCase to snake_case, string-integers to integers
 
-[**performance_reports (POST)**](https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query)
+[**performance_report_country (POST)**](https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query)
+- [Performance Report Description](https://support.google.com/webmasters/answer/7576553?hl=en)
+- Endpoint: https://www.googleapis.com/webmasters/v3/sites/{site_url}/searchAnalytics/query
+- Primary keys: site_url, search_type, date, country
+- Foreign keys: site_url
+- Replication strategy: Incremental (query filtered based on date)
+  - Filters: site_url, searchType, startDate (bookmark), endDate (current date) 
+  - Sort by: date ASC (when date is a dimension, results are sorted by date ascending)
+  - Bookmark: date (date-time)
+- Transformations: Fields camelCase to snake_case, denest dimensions key/values, remove keys list node
+
+[**performance_report_custom (POST)**](https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query)
 - [Performance Report Description](https://support.google.com/webmasters/answer/7576553?hl=en)
 - Endpoint: https://www.googleapis.com/webmasters/v3/sites/{site_url}/searchAnalytics/query
 - Primary keys: site_url, search_type, date, dimensions_hash_key
@@ -42,6 +59,51 @@ This tap:
   - Bookmark: date (date-time)
 - Transformations: Fields camelCase to snake_case, denest dimensions key/values, remove keys list node
  
+ [**performance_report_date (POST)**](https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query)
+- [Performance Report Description](https://support.google.com/webmasters/answer/7576553?hl=en)
+- Endpoint: https://www.googleapis.com/webmasters/v3/sites/{site_url}/searchAnalytics/query
+- Primary keys: site_url, search_type, date
+- Foreign keys: site_url
+- Replication strategy: Incremental (query filtered based on date)
+  - Filters: site_url, searchType, startDate (bookmark), endDate (current date) 
+  - Sort by: date ASC (when date is a dimension, results are sorted by date ascending)
+  - Bookmark: date (date-time)
+- Transformations: Fields camelCase to snake_case, denest dimensions key/values, remove keys list node
+
+[**performance_report_device (POST)**](https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query)
+- [Performance Report Description](https://support.google.com/webmasters/answer/7576553?hl=en)
+- Endpoint: https://www.googleapis.com/webmasters/v3/sites/{site_url}/searchAnalytics/query
+- Primary keys: site_url, search_type, date, device
+- Foreign keys: site_url
+- Replication strategy: Incremental (query filtered based on date)
+  - Filters: site_url, searchType, startDate (bookmark), endDate (current date) 
+  - Sort by: date ASC (when date is a dimension, results are sorted by date ascending)
+  - Bookmark: date (date-time)
+- Transformations: Fields camelCase to snake_case, denest dimensions key/values, remove keys list node
+
+[**performance_report_page (POST)**](https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query)
+- [Performance Report Description](https://support.google.com/webmasters/answer/7576553?hl=en)
+- Endpoint: https://www.googleapis.com/webmasters/v3/sites/{site_url}/searchAnalytics/query
+- Primary keys: site_url, search_type, date, page
+- Foreign keys: site_url
+- Replication strategy: Incremental (query filtered based on date)
+  - Filters: site_url, searchType, startDate (bookmark), endDate (current date) 
+  - Sort by: date ASC (when date is a dimension, results are sorted by date ascending)
+  - Bookmark: date (date-time)
+- Transformations: Fields camelCase to snake_case, denest dimensions key/values, remove keys list node
+
+[**performance_report_query (keyword) (POST)**](https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query)
+- [Performance Report Description](https://support.google.com/webmasters/answer/7576553?hl=en)
+- Endpoint: https://www.googleapis.com/webmasters/v3/sites/{site_url}/searchAnalytics/query
+- Primary keys: site_url, search_type, date, query
+- Foreign keys: site_url
+- Replication strategy: Incremental (query filtered based on date)
+  - Filters: site_url, searchType, startDate (bookmark), endDate (current date) 
+  - Sort by: date ASC (when date is a dimension, results are sorted by date ascending)
+  - Bookmark: date (date-time)
+- Transformations: Fields camelCase to snake_case, denest dimensions key/values, remove keys list node
+
+
 ## Authentication
 The [**Google Search Console Setup & Authentication**](https://drive.google.com/open?id=1FojlvtLwS0-BzGS37R0jEXtwSHqSiO1Uw-7RKQQO-C4) Google Doc provides instructions show how to configure the Google Search Console for your domain and website URLs, configure Google Cloud to authorize/verify your domain ownership, generate an API key (client_id, client_secret), authenticate and generate a refresh_token, and prepare your tap config.json with the necessary parameters.
 
@@ -90,7 +152,7 @@ The [**Google Search Console Setup & Authentication**](https://drive.google.com/
     {
         "currently_syncing": "sitemaps",
         "bookmarks": {
-            "performance_reports": {
+            "performance_report_{type}": {
                 "https://example.com": {
                     "web": "2019-06-11T00:00:00Z",
                     "image": "2019-06-12T00:00:00Z",
