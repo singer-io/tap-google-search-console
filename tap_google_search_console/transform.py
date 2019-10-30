@@ -58,7 +58,7 @@ def hash_data(data):
 
 
 # Denest keys values list to dimension_list keys
-def denest_key_fields(this_json, path, dimensions_list):
+def denest_key_fields(this_json, stream_name, path, dimensions_list):
     new_json = this_json
     i = 0
     for record in list(this_json[path]):
@@ -66,8 +66,10 @@ def denest_key_fields(this_json, path, dimensions_list):
             if isinstance(record[key], list):
                 if key == 'keys':
                     dim_num = 0
-                    dims_md5 = str(hash_data(json.dumps(record[key], sort_keys=True)))
-                    new_json[path][i]['dimensions_hash_key'] = dims_md5
+                    # Add dimensions_hash_key for performance_report_custom
+                    if stream_name == 'performance_report_custom':
+                        dims_md5 = str(hash_data(json.dumps(record[key], sort_keys=True)))
+                        new_json[path][i]['dimensions_hash_key'] = dims_md5
                     for dimension in dimensions_list:
                         new_json[path][i][dimension] = record[key][dim_num]
                         dim_num = dim_num + 1
@@ -95,9 +97,9 @@ def add_search_type(this_json, path, sub_type):
     return new_json
 
 
-def transform_reports(this_json, path, site, sub_type, dimensions_list):
-    # de-nest keys array to dimension fields
-    denested_json = denest_key_fields(this_json, path, dimensions_list)
+def transform_reports(this_json, stream_name, path, site, sub_type, dimensions_list):
+    # de-nest keys array to dimension fields and add MD5 hash key for custom report
+    denested_json = denest_key_fields(this_json, stream_name, path, dimensions_list)
     # remove keys array node
     keyless_json = remove_keys_nodes(denested_json, path)
     # add site_url and search_type to results
@@ -111,8 +113,8 @@ def transform_json(this_json, stream_name, path, site, sub_type, dimensions_list
     converted_json = convert_json(this_json)
     if stream_name == 'sitemaps':
         new_json = add_site_url(converted_json, path, site)
-    elif stream_name == 'performance_reports':
-        new_json = transform_reports(converted_json, path, site, sub_type, dimensions_list)
+    elif stream_name.startswith('performance_report'):
+        new_json = transform_reports(converted_json, stream_name, path, site, sub_type, dimensions_list)
     else:
         new_json = converted_json
     return new_json

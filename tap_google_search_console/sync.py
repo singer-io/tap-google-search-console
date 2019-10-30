@@ -49,12 +49,7 @@ def write_bookmark(state, stream, site, sub_type, value):
     state['bookmarks'][stream][site][sub_type] = value
     LOGGER.info('Write state for Stream: {}, Site: {}, Type: {}, value: {}'.format(
         stream, site, sub_type, value))
-    try:
-        singer.messages.write_state(state)
-    except OSError as err:
-        LOGGER.info('OS Error writing State for: {}'.format(stream))
-        LOGGER.info('state: {}'.format(state))
-        raise err
+    singer.write_state(state)
 
 
 def transform_datetime(this_dttm):
@@ -300,12 +295,7 @@ def update_currently_syncing(state, stream_name):
         del state['currently_syncing']
     else:
         singer.set_currently_syncing(state, stream_name)
-    try:
-        singer.messages.write_state(state)
-    except OSError as err:
-        LOGGER.info('OS Error writing Currently Syncing State for: {}'.format(stream_name))
-        LOGGER.info('state: {}'.format(state))
-        raise err
+    singer.write_state(state)
 
 
 def sync(client, config, catalog, state):
@@ -334,6 +324,7 @@ def sync(client, config, catalog, state):
         write_schema(catalog, stream_name)
         endpoint_config = STREAMS[stream_name]
         bookmark_field = next(iter(endpoint_config.get('replication_keys', [])), None)
+        body_params = endpoint_config.get('body', {})
         endpoint_total = 0
         # Initialize body
         body = endpoint_config.get('body', {})
@@ -348,8 +339,8 @@ def sync(client, config, catalog, state):
             path = endpoint_config.get('path').format(site_encoded)
 
             # Set dimension_list for performance_reports
-            dimensions_list = []
-            if stream_name == 'performance_reports':
+            if stream_name == 'performance_report_custom':
+                dimensions_list = []
                 # Create dimensions_list from catalog breadcrumb
                 stream = catalog.get_stream(stream_name)
                 mdata = metadata.to_map(stream.metadata)
@@ -358,11 +349,13 @@ def sync(client, config, catalog, state):
                     if singer.metadata.get(mdata, ('properties', dim), 'selected'):
                         # metadata is selected for the dimension
                         dimensions_list.append(dim)
+                body_params['dimensions'] = dimensions_list
+            dimensions_list = body_params.get('dimensions')
 
             # loop through each sub type
             sub_types = endpoint_config.get('sub_types', ['self'])
             for sub_type in sub_types:
-                if stream_name == 'performance_reports':
+                if stream_name.startswith('performance_report'):
                     reports_dttm_str = get_bookmark(
                         state,
                         stream_name,
@@ -371,10 +364,10 @@ def sync(client, config, catalog, state):
                         start_date)
                     reports_dt_str = transform_datetime(reports_dttm_str)[:10]
                     body = {
-                        'dimensions': dimensions_list,
                         'searchType': sub_type,
                         'startDate': reports_dt_str,
-                        'endDate': now_dt_str
+                        'endDate': now_dt_str,
+                        **body_params
                     }
 
                 LOGGER.info('START Syncing Stream: {}, Site: {}, Type: {}'.format(
