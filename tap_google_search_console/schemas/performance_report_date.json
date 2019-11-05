@@ -13,12 +13,10 @@
       "format": "date-time"
     },
     "clicks": {
-      "type": ["null", "number"],
-      "multipleOf": 1e-20
+      "type": ["null", "integer"]
     },
     "impressions": {
-      "type": ["null", "number"],
-      "multipleOf": 1e-20
+      "type": ["null", "integer"]
     },
     "ctr": {
       "type": ["null", "number"],
