@@ -15,6 +15,7 @@ def write_schema(catalog, stream_name):
         singer.write_schema(stream_name, schema, stream.key_properties)
     except OSError as err:
         LOGGER.info('OS Error writing schema for: {}'.format(stream_name))
+        LOGGER.info('Error: {}'.format(err))
         raise err
 
 
@@ -24,6 +25,7 @@ def write_record(stream_name, record, time_extracted):
     except OSError as err:
         LOGGER.info('OS Error writing record for: {}'.format(stream_name))
         LOGGER.info('record: {}'.format(record))
+        LOGGER.info('Error: {}'.format(err))
         raise err
 
 
@@ -333,70 +335,78 @@ def sync(client, config, catalog, state):
         if 'site_urls' in config:
             site_list = config['site_urls'].replace(" ", "").split(",")
         for site in site_list:
-            LOGGER.info('STARTED Syncing: {}, Site: {}'.format(stream_name, site))
-            site_total = 0
-            site_encoded = quote(site, safe='')
-            path = endpoint_config.get('path').format(site_encoded)
+            # Skip/ignore sitemaps for domain property sites
+            # Reference issue: https://github.com/googleapis/google-api-php-client/issues/1607
+            #   "...sitemaps API does not support domain property urls at this time."
+            if stream_name == 'sitemaps' and site[0:9] == 'sc-domain':
+                LOGGER.info('Skipping Site: {}'.format(site))
+                LOGGER.info('  Sitemaps API does not support domain property urls at this time.')
+            else:
+                LOGGER.info('STARTED Syncing: {}, Site: {}'.format(stream_name, site))
+                site_total = 0
+                site_encoded = quote(site, safe='')
+                path = endpoint_config.get('path').format(site_encoded)
 
-            # Set dimension_list for performance_reports
-            if stream_name == 'performance_report_custom':
-                dimensions_list = []
-                # Create dimensions_list from catalog breadcrumb
-                stream = catalog.get_stream(stream_name)
-                mdata = metadata.to_map(stream.metadata)
-                dimensions_all = ['date', 'country', 'device', 'page', 'query']
-                for dim in dimensions_all:
-                    if singer.metadata.get(mdata, ('properties', dim), 'selected'):
-                        # metadata is selected for the dimension
-                        dimensions_list.append(dim)
-                body_params['dimensions'] = dimensions_list
-            dimensions_list = body_params.get('dimensions')
+                # Set dimension_list for performance_reports
+                if stream_name == 'performance_report_custom':
+                    dimensions_list = []
+                    # Create dimensions_list from catalog breadcrumb
+                    stream = catalog.get_stream(stream_name)
+                    mdata = metadata.to_map(stream.metadata)
+                    dimensions_all = ['date', 'country', 'device', 'page', 'query']
+                    for dim in dimensions_all:
+                        if singer.metadata.get(mdata, ('properties', dim), 'selected'):
+                            # metadata is selected for the dimension
+                            dimensions_list.append(dim)
+                    body_params['dimensions'] = dimensions_list
+                dimensions_list = body_params.get('dimensions')
+                LOGGER.info('stream: {}, dimensions_list: {}'.format(stream_name, dimensions_list))
 
-            # loop through each sub type
-            sub_types = endpoint_config.get('sub_types', ['self'])
-            for sub_type in sub_types:
-                if stream_name.startswith('performance_report'):
-                    reports_dttm_str = get_bookmark(
-                        state,
-                        stream_name,
-                        site,
-                        sub_type,
-                        start_date)
-                    reports_dt_str = transform_datetime(reports_dttm_str)[:10]
-                    body = {
-                        'searchType': sub_type,
-                        'startDate': reports_dt_str,
-                        'endDate': now_dt_str,
-                        **body_params
-                    }
+                # loop through each sub type
+                sub_types = endpoint_config.get('sub_types', ['self'])
+                for sub_type in sub_types:
+                    if stream_name.startswith('performance_report'):
+                        reports_dttm_str = get_bookmark(
+                            state,
+                            stream_name,
+                            site,
+                            sub_type,
+                            start_date)
+                        reports_dt_str = transform_datetime(reports_dttm_str)[:10]
+                        body = {
+                            'searchType': sub_type,
+                            'startDate': reports_dt_str,
+                            'endDate': now_dt_str,
+                            **body_params
+                        }
 
-                LOGGER.info('START Syncing Stream: {}, Site: {}, Type: {}'.format(
-                    stream_name, site, sub_type))
-                total_records = sync_endpoint(
-                    client=client,
-                    catalog=catalog,
-                    state=state,
-                    start_date=start_date,
-                    stream_name=stream_name,
-                    site=site,
-                    sub_type=sub_type,
-                    dimensions_list=dimensions_list,
-                    path=path,
-                    endpoint_config=endpoint_config,
-                    api_method=endpoint_config.get('api_method', 'GET'),
-                    pagination=endpoint_config.get('pagination', 'none'),
-                    static_params=endpoint_config.get('params', {}),
-                    bookmark_field=bookmark_field,
-                    bookmark_type=endpoint_config.get('bookmark_type'),
-                    data_key=endpoint_config.get('data_key', None),
-                    body_params=body,
-                    id_fields=endpoint_config.get('key_properties'))
+                    LOGGER.info('START Syncing Stream: {}, Site: {}, Type: {}'.format(
+                        stream_name, site, sub_type))
+                    total_records = sync_endpoint(
+                        client=client,
+                        catalog=catalog,
+                        state=state,
+                        start_date=start_date,
+                        stream_name=stream_name,
+                        site=site,
+                        sub_type=sub_type,
+                        dimensions_list=dimensions_list,
+                        path=path,
+                        endpoint_config=endpoint_config,
+                        api_method=endpoint_config.get('api_method', 'GET'),
+                        pagination=endpoint_config.get('pagination', 'none'),
+                        static_params=endpoint_config.get('params', {}),
+                        bookmark_field=bookmark_field,
+                        bookmark_type=endpoint_config.get('bookmark_type'),
+                        data_key=endpoint_config.get('data_key', None),
+                        body_params=body,
+                        id_fields=endpoint_config.get('key_properties'))
 
-                endpoint_total = endpoint_total + total_records
-                site_total = site_total + total_records
-                LOGGER.info('FINISHED Syncing Stream: {}, Site: {}, Type: {}'.format(
-                    stream_name, site, sub_type))
-                LOGGER.info('  Records Synced for Type: {}'.format(total_records))
+                    endpoint_total = endpoint_total + total_records
+                    site_total = site_total + total_records
+                    LOGGER.info('FINISHED Syncing Stream: {}, Site: {}, Type: {}'.format(
+                        stream_name, site, sub_type))
+                    LOGGER.info('  Records Synced for Type: {}'.format(total_records))
             LOGGER.info('FINISHED Syncing Stream: {}, Site: {}'.format(stream_name, site))
             LOGGER.info('  Records Synced for Site: {}'.format(site_total))
         LOGGER.info('FINISHED Syncing Stream: {}'.format(stream_name))

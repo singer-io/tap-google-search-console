@@ -139,7 +139,7 @@ The [**Google Search Console Setup & Authentication**](https://drive.google.com/
         "client_id": "YOUR_CLIENT_ID",
         "client_secret": "YOUR_CLIENT_SECRET",
         "refresh_token": "YOUR_REFRESH_TOKEN",
-        "site_urls": "https://example.com, https://www.example.com, http://example.com, http://www.example.com",
+        "site_urls": "https://example.com, https://www.example.com, http://example.com, http://www.example.com, sc-domain:example.com",
         "start_date": "2019-01-01T00:00:00Z",
         "user_agent": "tap-google-search-console <api_user_email@example.com>"
     }
