@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.4
+  * Fix issue with Sitemaps API; ignore domain property sites for `sitemaps` endpoint.
+
 ## 0.0.3
   * Change data types for impressions and clicks in performance reports from number to integer.
 
