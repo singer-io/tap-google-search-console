@@ -14,8 +14,8 @@ def write_schema(catalog, stream_name):
     try:
         singer.write_schema(stream_name, schema, stream.key_properties)
     except OSError as err:
-        LOGGER.info('OS Error writing schema for: {}'.format(stream_name))
-        LOGGER.info('Error: {}'.format(err))
+        LOGGER.error('OS Error writing schema for: {}'.format(stream_name))
+        LOGGER.error('Error: {}'.format(err))
         raise err
 
 
@@ -23,9 +23,9 @@ def write_record(stream_name, record, time_extracted):
     try:
         singer.messages.write_record(stream_name, record, time_extracted=time_extracted)
     except OSError as err:
-        LOGGER.info('OS Error writing record for: {}'.format(stream_name))
-        LOGGER.info('record: {}'.format(record))
-        LOGGER.info('Error: {}'.format(err))
+        LOGGER.error('OS Error writing record for: {}'.format(stream_name))
+        LOGGER.error('record: {}'.format(record))
+        LOGGER.error('Error: {}'.format(err))
         raise err
 
 
