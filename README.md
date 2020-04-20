@@ -150,31 +150,111 @@ The [**Google Search Console Setup & Authentication**](https://drive.google.com/
 
     ```json
     {
-        "currently_syncing": "sitemaps",
-        "bookmarks": {
-            "performance_report_{type}": {
-                "https://example.com": {
-                    "web": "2019-06-11T00:00:00Z",
-                    "image": "2019-06-12T00:00:00Z",
-                    "video": "2019-06-12T00:00:00Z"
-                },
-                "https://www.example.com": {
-                    "web": "2019-06-11T00:00:00Z",
-                    "image": "2019-06-12T00:00:00Z",
-                    "video": "2019-06-12T00:00:00Z"
-                },
-                "http://example.com": {
-                    "web": "2019-06-11T00:00:00Z",
-                    "image": "2019-06-12T00:00:00Z",
-                    "video": "2019-06-12T00:00:00Z"
-                },
-                "http://www.example.com": {
-                    "web": "2019-06-11T00:00:00Z",
-                    "image": "2019-06-12T00:00:00Z",
-                    "video": "2019-06-12T00:00:00Z"
-                }
-            }
+      "currently_syncing": "sitemaps",
+      "bookmarks": {
+        "performance_report_custom": {
+          "sc-domain:example.com": {
+            "web": "2020-04-18T00:00:00.000000Z",
+            "image": "2020-04-18T00:00:00.000000Z",
+            "video": "2020-04-08T00:00:00.000000Z"
+          },
+          "https://example.com": {
+            "web": "2020-04-18T00:00:00.000000Z",
+            "image": "2020-04-18T00:00:00.000000Z",
+            "video": "2020-04-08T00:00:00.000000Z"
+          },
+          "http://example.com": {
+            "web": "2020-04-13T00:00:00.000000Z"
+          }
+        },
+        "performance_report_date": {
+          "http://www.example.com": {
+            "web": "2020-04-18T00:00:00.000000Z",
+            "image": "2020-04-18T00:00:00.000000Z",
+            "video": "2020-04-18T00:00:00.000000Z"
+          },
+          "sc-domain:example.com": {
+            "web": "2020-04-18T00:00:00.000000Z",
+            "image": "2020-04-18T00:00:00.000000Z",
+            "video": "2020-04-18T00:00:00.000000Z"
+          },
+          "https://www.example.com": {
+            "web": "2020-04-18T00:00:00.000000Z",
+            "image": "2020-04-18T00:00:00.000000Z",
+            "video": "2020-04-18T00:00:00.000000Z"
+          },
+          "https://example.com": {
+            "web": "2020-04-18T00:00:00.000000Z",
+            "image": "2020-04-18T00:00:00.000000Z",
+            "video": "2020-04-18T00:00:00.000000Z"
+          },
+          "http://example.com": {
+            "web": "2020-04-18T00:00:00.000000Z",
+            "image": "2020-04-18T00:00:00.000000Z",
+            "video": "2020-04-18T00:00:00.000000Z"
+          }
+        },
+        "performance_report_device": {
+          "sc-domain:example.com": {
+            "web": "2020-04-18T00:00:00.000000Z",
+            "image": "2020-04-18T00:00:00.000000Z",
+            "video": "2020-04-08T00:00:00.000000Z"
+          },
+          "https://example.com": {
+            "web": "2020-04-18T00:00:00.000000Z",
+            "image": "2020-04-18T00:00:00.000000Z",
+            "video": "2020-04-08T00:00:00.000000Z"
+          },
+          "http://example.com": {
+            "web": "2020-04-16T00:00:00.000000Z"
+          }
+        },
+        "performance_report_page": {
+          "sc-domain:example.com": {
+            "web": "2020-04-18T00:00:00.000000Z",
+            "image": "2020-04-18T00:00:00.000000Z",
+            "video": "2020-04-08T00:00:00.000000Z"
+          },
+          "https://example.com": {
+            "web": "2020-04-18T00:00:00.000000Z",
+            "image": "2020-04-18T00:00:00.000000Z",
+            "video": "2020-04-08T00:00:00.000000Z"
+          },
+          "http://example.com": {
+            "web": "2020-04-16T00:00:00.000000Z"
+          }
+        },
+        "performance_report_query": {
+          "sc-domain:example.com": {
+            "web": "2020-04-18T00:00:00.000000Z",
+            "image": "2020-04-18T00:00:00.000000Z",
+            "video": "2020-04-08T00:00:00.000000Z"
+          },
+          "https://example.com": {
+            "web": "2020-04-18T00:00:00.000000Z",
+            "image": "2020-04-18T00:00:00.000000Z",
+            "video": "2020-04-08T00:00:00.000000Z"
+          },
+          "http://example.com": {
+            "web": "2020-04-13T00:00:00.000000Z"
+          }
+        },
+        "performance_report_country": {
+          "sc-domain:example.com": {
+            "web": "2020-04-18T00:00:00.000000Z",
+            "image": "2020-04-18T00:00:00.000000Z",
+            "video": "2020-04-08T00:00:00.000000Z"
+          },
+          "https://example.com": {
+            "web": "2020-04-18T00:00:00.000000Z",
+            "image": "2020-04-18T00:00:00.000000Z",
+            "video": "2020-04-08T00:00:00.000000Z"
+          },
+          "http://example.com": {
+            "web": "2020-04-16T00:00:00.000000Z"
+          }
         }
+      }
     }
     ```
 
@@ -224,20 +304,25 @@ The [**Google Search Console Setup & Authentication**](https://drive.google.com/
     Check tap resulted in the following:
     ```bash
     The output is valid.
-    It contained 4361 messages for 3 streams.
+    It contained 42192 messages for 8 streams.
 
-    3 schema messages
-    4340 record messages
-    18 state messages
+          8 schema messages
+      42118 record messages
+        66 state messages
 
     Details by stream:
-    +---------------------+---------+---------+
-    | stream              | records | schemas |
-    +---------------------+---------+---------+
-    | sitemaps            | 4       | 1       |
-    | sites               | 4       | 1       |
-    | performance_reports | 4332    | 1       |
-    +---------------------+---------+---------+
+    +----------------------------+---------+---------+
+    | stream                     | records | schemas |
+    +----------------------------+---------+---------+
+    | sites                      | 5       | 1       |
+    | sitemaps                   | 4       | 1       |
+    | performance_report_date    | 1170    | 1       |
+    | performance_report_page    | 3640    | 1       |
+    | performance_report_country | 7371    | 1       |
+    | performance_report_query   | 11335   | 1       |
+    | performance_report_device  | 639     | 1       |
+    | performance_report_custom  | 17954   | 1       |
+    +----------------------------+---------+---------+
     ```
 ---
 

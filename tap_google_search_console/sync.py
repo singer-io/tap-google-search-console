@@ -1,4 +1,5 @@
 import json
+from datetime import datetime, timedelta
 from urllib.parse import quote
 import singer
 from singer import metrics, metadata, Transformer, utils
@@ -8,6 +9,10 @@ from tap_google_search_console.streams import STREAMS
 
 LOGGER = singer.get_logger()
 BASE_URL = 'https://www.googleapis.com/webmasters/v3'
+# Google Search Console is generally delayed 2-3 days
+# However, delays up to 10 days have occurred in the past 6 months (late 2019, early 2020)
+# Reference: https://support.google.com/webmasters/answer/96568?hl=en
+ATTRIBUTION_DAYS = 14
 
 def write_schema(catalog, stream_name):
     stream = catalog.get_stream(stream_name)
@@ -212,7 +217,7 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
             data = data_dict
         # LOGGER.info('data = {}'.format(data)) # TESTING, comment out
         if data_key in data:
-            LOGGER.info('Number of raw data records: {}'.format(len(data[data_key])))
+            # LOGGER.info('Number of raw data records: {}'.format(len(data[data_key])))
             transformed_data = transform_json(
                 data,
                 stream_name,
@@ -220,7 +225,7 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
                 site,
                 sub_type,
                 dimensions_list)[data_key]
-            LOGGER.info('Number of transformed_data records: {}'.format(batch_count))
+            # LOGGER.info('Number of transformed_data records: {}'.format(batch_count))
         else:
             LOGGER.info('Number of raw data records: 0')
         # LOGGER.info('transformed_data = {}'.format(transformed_data))  # TESTING, comment out
@@ -305,7 +310,11 @@ def sync(client, config, catalog, state):
         return
 
     # Get current datetime (now_dt_str) for query parameters
-    now_dt_str = utils.now().strftime('%Y-%m-%d')
+    now_dttm = utils.now()
+    now_dt_str = strftime(now_dttm)[0:10]
+    # Reference: https://support.google.com/webmasters/answer/96568?hl=en
+    # There is some delay/lag in Google Search Console results reconcilliation
+    attribution_start_dttm = now_dttm - timedelta(days=ATTRIBUTION_DAYS)
 
     # Loop through selected_streams
     for stream_name in selected_streams:
@@ -360,10 +369,18 @@ def sync(client, config, catalog, state):
                             site,
                             sub_type,
                             start_date)
+                        
+                        reports_dttm = strptime_to_utc(reports_dttm_str)
+                        if reports_dttm < attribution_start_dttm:
+                            start_dttm = reports_dttm
+                        else:
+                            start_dttm = attribution_start_dttm
+                        start_str = strftime(start_dttm)[0:10]
+
                         reports_dt_str = '{}'.format(reports_dttm_str)[:10]
                         body = {
                             'searchType': sub_type,
-                            'startDate': reports_dt_str,
+                            'startDate': start_str,
                             'endDate': now_dt_str,
                             **body_params
                         }

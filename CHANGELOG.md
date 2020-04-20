@@ -1,7 +1,7 @@
 # Changelog
 
 ## 0.0.6
-  * Fix/simplify bookmarking and paging issues for organizations with a large number of results.
+  * Fix/simplify bookmarking and paging issues for organizations with a large number of results. Add 14 day attribution window to account for results lag time.
 
 ## 0.0.5
   * Increase `performance_report` endpoints `multipleOf` to 25 decimal digits to accommodate numbers returned from API.
