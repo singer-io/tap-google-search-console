@@ -40,9 +40,8 @@ STREAMS = {
         'path': 'sites/{}/searchAnalytics/query',
         'data_key': 'rows',
         'api_method': 'POST',
+        'row_limit': 1000,
         'body': {
-            'startRow': 0,
-            'rowLimit': 25000,
             'aggregationType': 'auto'
         },
         'bookmark_type': 'datetime',
@@ -57,9 +56,8 @@ STREAMS = {
         'path': 'sites/{}/searchAnalytics/query',
         'data_key': 'rows',
         'api_method': 'POST',
+        'row_limit': 1000,
         'body': {
-            'startRow': 0,
-            'rowLimit': 25000,
             'aggregationType': 'byProperty',
             'dimensions': ['date']
         },
@@ -75,9 +73,8 @@ STREAMS = {
         'path': 'sites/{}/searchAnalytics/query',
         'data_key': 'rows',
         'api_method': 'POST',
+        'row_limit': 1000,
         'body': {
-            'startRow': 0,
-            'rowLimit': 25000,
             'aggregationType': 'byProperty',
             'dimensions': ['date', 'country']
         },
@@ -93,9 +90,8 @@ STREAMS = {
         'path': 'sites/{}/searchAnalytics/query',
         'data_key': 'rows',
         'api_method': 'POST',
+        'row_limit': 1000,
         'body': {
-            'startRow': 0,
-            'rowLimit': 25000,
             'aggregationType': 'byProperty',
             'dimensions': ['date', 'device']
         },
@@ -111,9 +107,8 @@ STREAMS = {
         'path': 'sites/{}/searchAnalytics/query',
         'data_key': 'rows',
         'api_method': 'POST',
+        'row_limit': 1000,
         'body': {
-            'startRow': 0,
-            'rowLimit': 25000,
             'aggregationType': 'byPage',
             'dimensions': ['date', 'page']
         },
@@ -129,9 +124,8 @@ STREAMS = {
         'path': 'sites/{}/searchAnalytics/query',
         'data_key': 'rows',
         'api_method': 'POST',
+        'row_limit': 1000,
         'body': {
-            'startRow': 0,
-            'rowLimit': 25000,
             'aggregationType': 'byProperty',
             'dimensions': ['date', 'query']
         },
