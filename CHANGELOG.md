@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.7
+  * Add date window looping logic to the `sync` function in `sync.py`. Increase the `row_limit` for `performance_reports` to 10,000.
+
 ## 0.0.6
   * Fix/simplify bookmarking and paging issues for organizations with a large number of results. Add 14 day attribution window to account for results lag time.
 
