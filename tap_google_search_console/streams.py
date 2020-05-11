@@ -40,7 +40,7 @@ STREAMS = {
         'path': 'sites/{}/searchAnalytics/query',
         'data_key': 'rows',
         'api_method': 'POST',
-        'row_limit': 1000,
+        'row_limit': 10000,
         'body': {
             'aggregationType': 'auto'
         },
@@ -56,7 +56,7 @@ STREAMS = {
         'path': 'sites/{}/searchAnalytics/query',
         'data_key': 'rows',
         'api_method': 'POST',
-        'row_limit': 1000,
+        'row_limit': 10000,
         'body': {
             'aggregationType': 'byProperty',
             'dimensions': ['date']
@@ -73,7 +73,7 @@ STREAMS = {
         'path': 'sites/{}/searchAnalytics/query',
         'data_key': 'rows',
         'api_method': 'POST',
-        'row_limit': 1000,
+        'row_limit': 10000,
         'body': {
             'aggregationType': 'byProperty',
             'dimensions': ['date', 'country']
@@ -90,7 +90,7 @@ STREAMS = {
         'path': 'sites/{}/searchAnalytics/query',
         'data_key': 'rows',
         'api_method': 'POST',
-        'row_limit': 1000,
+        'row_limit': 10000,
         'body': {
             'aggregationType': 'byProperty',
             'dimensions': ['date', 'device']
@@ -107,7 +107,7 @@ STREAMS = {
         'path': 'sites/{}/searchAnalytics/query',
         'data_key': 'rows',
         'api_method': 'POST',
-        'row_limit': 1000,
+        'row_limit': 10000,
         'body': {
             'aggregationType': 'byPage',
             'dimensions': ['date', 'page']
@@ -124,7 +124,7 @@ STREAMS = {
         'path': 'sites/{}/searchAnalytics/query',
         'data_key': 'rows',
         'api_method': 'POST',
-        'row_limit': 1000,
+        'row_limit': 10000,
         'body': {
             'aggregationType': 'byProperty',
             'dimensions': ['date', 'query']

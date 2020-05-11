@@ -13,6 +13,7 @@ BASE_URL = 'https://www.googleapis.com/webmasters/v3'
 # However, delays up to 10 days have occurred in the past 6 months (late 2019, early 2020)
 # Reference: https://support.google.com/webmasters/answer/96568?hl=en
 ATTRIBUTION_DAYS = 14
+DATE_WINDOW_SIZE = 30
 
 def write_schema(catalog, stream_name):
     stream = catalog.get_stream(stream_name)
@@ -110,6 +111,7 @@ def process_records(catalog, #pylint: disable=too-many-branches
 
 
 # Sync a specific endpoint
+# For performance reports, this is for: reprot, site, sub_type, date window
 def sync_endpoint(client, #pylint: disable=too-many-branches
                   catalog,
                   state,
@@ -270,7 +272,7 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
     # NOTE: Results are sorted by click count descending. 
     #       If two rows have the same click count, they are sorted in an arbitrary way.
     #       Records are NOT sorted in DATE order.
-    # THEREFOR: State is updated after ALL pages of data for stream, site, sub_type
+    # THEREFOR: State is updated after ALL pages of data for stream, site, sub_type, date window
     if bookmark_field:
         write_bookmark(state,
                        stream_name,
@@ -338,7 +340,8 @@ def sync(client, config, catalog, state):
             if stream_name == 'sitemaps' and site[0:9] == 'sc-domain':
                 LOGGER.info('Skipping Site: {}'.format(site))
                 LOGGER.info('  Sitemaps API does not support domain property urls at this time.')
-            else:
+
+            else: # Not sitemaps and sites = sc-domain
                 LOGGER.info('STARTED Syncing: {}, Site: {}'.format(stream_name, site))
                 site_total = 0
                 site_encoded = quote(site, safe='')
@@ -362,6 +365,9 @@ def sync(client, config, catalog, state):
                 # loop through each sub type
                 sub_types = endpoint_config.get('sub_types', ['self'])
                 for sub_type in sub_types:
+                    sub_type_total = 0
+
+                    # Initialize date window
                     if stream_name.startswith('performance_report'):
                         reports_dttm_str = get_bookmark(
                             state,
@@ -375,44 +381,76 @@ def sync(client, config, catalog, state):
                             start_dttm = reports_dttm
                         else:
                             start_dttm = attribution_start_dttm
+                        end_dttm = start_dttm + timedelta(days=DATE_WINDOW_SIZE)
+                        if end_dttm > now_dttm:
+                            end_dttm = now_dttm
+
+                    else:
+                        start_dttm = strptime_to_utc(start_date)
+                        end_dttm = now_dttm
+
+                    # Date window loop
+                    while start_dttm < now_dttm:
                         start_str = strftime(start_dttm)[0:10]
+                        end_str = strftime(end_dttm)[0:10]
+                        if stream_name.startswith('performance_report'):
+                            body = {
+                                'searchType': sub_type,
+                                'startDate': start_str,
+                                'endDate': end_str,
+                                **body_params
+                            }
+                        else:
+                            body = None
 
-                        reports_dt_str = '{}'.format(reports_dttm_str)[:10]
-                        body = {
-                            'searchType': sub_type,
-                            'startDate': start_str,
-                            'endDate': now_dt_str,
-                            **body_params
-                        }
+                        LOGGER.info('START Syncing Stream: {}, Site: {}, Type: {}, {} to {}'.format(
+                            stream_name, site, sub_type, start_str, end_str))
+                        total_records = sync_endpoint(
+                            client=client,
+                            catalog=catalog,
+                            state=state,
+                            start_date=start_date,
+                            stream_name=stream_name,
+                            site=site,
+                            sub_type=sub_type,
+                            dimensions_list=dimensions_list,
+                            path=path,
+                            endpoint_config=endpoint_config,
+                            api_method=endpoint_config.get('api_method', 'GET'),
+                            pagination=endpoint_config.get('pagination', 'none'),
+                            static_params=endpoint_config.get('params', {}),
+                            bookmark_field=bookmark_field,
+                            data_key=endpoint_config.get('data_key', None),
+                            body_params=body,
+                            id_fields=endpoint_config.get('key_properties'))
 
-                    LOGGER.info('START Syncing Stream: {}, Site: {}, Type: {}'.format(
-                        stream_name, site, sub_type))
-                    total_records = sync_endpoint(
-                        client=client,
-                        catalog=catalog,
-                        state=state,
-                        start_date=start_date,
-                        stream_name=stream_name,
-                        site=site,
-                        sub_type=sub_type,
-                        dimensions_list=dimensions_list,
-                        path=path,
-                        endpoint_config=endpoint_config,
-                        api_method=endpoint_config.get('api_method', 'GET'),
-                        pagination=endpoint_config.get('pagination', 'none'),
-                        static_params=endpoint_config.get('params', {}),
-                        bookmark_field=bookmark_field,
-                        data_key=endpoint_config.get('data_key', None),
-                        body_params=body,
-                        id_fields=endpoint_config.get('key_properties'))
+                        # Increment totals
+                        endpoint_total = endpoint_total + total_records
+                        site_total = site_total + total_records
+                        sub_type_total = sub_type_total + total_records
 
-                    endpoint_total = endpoint_total + total_records
-                    site_total = site_total + total_records
+                        LOGGER.info('FINISHED Syncing Stream: {}, Site: {}, Type: {}, {} to {}'.format(
+                            stream_name, site, sub_type, start_str, end_str))
+                        LOGGER.info('  Records Synced for Date Window: {}'.format(total_records))
+
+                        # Set next date window
+                        start_dttm = end_dttm
+                        end_dttm = start_dttm + timedelta(days=DATE_WINDOW_SIZE)
+                        if end_dttm > now_dttm:
+                            end_dttm = now_dttm
+                        # End date window loop
+
                     LOGGER.info('FINISHED Syncing Stream: {}, Site: {}, Type: {}'.format(
                         stream_name, site, sub_type))
-                    LOGGER.info('  Records Synced for Type: {}'.format(total_records))
+                    LOGGER.info('  Records Synced for Type: {}'.format(sub_type_total))
+                    # End sub-type loop
+                # End else: Not sitemaps and sites = sc-domain
+
             LOGGER.info('FINISHED Syncing Stream: {}, Site: {}'.format(stream_name, site))
             LOGGER.info('  Records Synced for Site: {}'.format(site_total))
+            # End site loop
+
         LOGGER.info('FINISHED Syncing Stream: {}'.format(stream_name))
         LOGGER.info('  Records Synced for Stream: {}'.format(endpoint_total))
         update_currently_syncing(state, None)
+        # End stream loop
