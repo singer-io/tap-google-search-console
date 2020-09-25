@@ -31,7 +31,6 @@ def write_record(stream_name, record, time_extracted):
         singer.messages.write_record(stream_name, record, time_extracted=time_extracted)
     except OSError as err:
         LOGGER.error('OS Error writing record for: {}'.format(stream_name))
-        LOGGER.error('record: {}'.format(record))
         LOGGER.error('Error: {}'.format(err))
         raise err
 
@@ -97,12 +96,10 @@ def process_records(catalog, #pylint: disable=too-many-branches
 
                     # Keep only records whose bookmark is after the last_datetime
                     if bookmark_dttm >= last_dttm:
-                        # LOGGER.info('record1: {}'.format(record)) # TESTING, comment out
                         write_record(stream_name, transformed_record, \
                             time_extracted=time_extracted)
                         counter.increment()
                 else:
-                    # LOGGER.info('record2: {}'.format(record)) # TESTING, comment out
                     write_record(stream_name, transformed_record, time_extracted=time_extracted)
                     counter.increment()
 
@@ -217,9 +214,7 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
             data_dict = {}
             data_dict[data_key] = data_list
             data = data_dict
-        # LOGGER.info('data = {}'.format(data)) # TESTING, comment out
         if data_key in data:
-            # LOGGER.info('Number of raw data records: {}'.format(len(data[data_key])))
             transformed_data = transform_json(
                 data,
                 stream_name,
@@ -227,10 +222,8 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
                 site,
                 sub_type,
                 dimensions_list)[data_key]
-            # LOGGER.info('Number of transformed_data records: {}'.format(batch_count))
         else:
             LOGGER.info('Number of raw data records: 0')
-        # LOGGER.info('transformed_data = {}'.format(transformed_data))  # TESTING, comment out
         if not transformed_data or transformed_data is None:
             LOGGER.info('xxx NO TRANSFORMED DATA xxx')
             return 0 # No data results

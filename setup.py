@@ -13,6 +13,12 @@ setup(name='tap-google-search-console',
           'requests==2.22.0',
           'singer-python==5.8.1'
       ],
+      extras_require={
+          'dev': [
+              'ipdb==0.11',
+              'pylint==2.5.3',
+          ]
+      },
       entry_points='''
           [console_scripts]
           tap-google-search-console=tap_google_search_console:main
