@@ -237,7 +237,7 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
         for record in transformed_data:
             for key in id_fields:
                 if not record.get(key):
-                    LOGGER.info('Missing key {} in record: {}'.format(key, record))
+                    raise ValueError('Missing key {} in record: {}'.format(key, record))
         batch_count = len(transformed_data)
 
         # Process records and get the max_bookmark_value and record_count for the set of records
@@ -269,7 +269,7 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
 
     # Update the state with the max_bookmark_value for the stream, site, sub_type
     # Reference: https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query
-    # NOTE: Results are sorted by click count descending. 
+    # NOTE: Results are sorted by click count descending.
     #       If two rows have the same click count, they are sorted in an arbitrary way.
     #       Records are NOT sorted in DATE order.
     # THEREFOR: State is updated after ALL pages of data for stream, site, sub_type, date window
@@ -375,7 +375,7 @@ def sync(client, config, catalog, state):
                             site,
                             sub_type,
                             start_date)
-                        
+
                         reports_dttm = strptime_to_utc(reports_dttm_str)
                         if reports_dttm < attribution_start_dttm:
                             start_dttm = reports_dttm
