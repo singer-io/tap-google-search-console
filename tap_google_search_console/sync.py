@@ -230,7 +230,8 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
         for record in transformed_data:
             for key in id_fields:
                 if not record.get(key):
-                    raise ValueError('Missing key {} in record: {}'.format(key, record))
+                    primary_keys_only = { id_field: record.get(id_field) for id_field in id_fields }
+                    raise ValueError('Missing key {} in record with primary keys {}'.format(key, primary_keys_only))
         batch_count = len(transformed_data)
 
         # Process records and get the max_bookmark_value and record_count for the set of records
