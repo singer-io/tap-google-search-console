@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.8
+  * Raise error and fail fast if missing pk in record instead of just logging [#9](https://github.com/singer-io/tap-google-search-console/pull/9)
+
 ## 0.0.7
   * Add date window looping logic to the `sync` function in `sync.py`. Increase the `row_limit` for `performance_reports` to 10,000.
 
