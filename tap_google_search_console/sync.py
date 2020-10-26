@@ -440,9 +440,9 @@ def sync(client, config, catalog, state):
                     # End sub-type loop
                 # End else: Not sitemaps and sites = sc-domain
 
-            LOGGER.info('FINISHED Syncing Stream: {}, Site: {}'.format(stream_name, site))
-            LOGGER.info('  Records Synced for Site: {}'.format(site_total))
-            # End site loop
+                LOGGER.info('FINISHED Syncing Stream: {}, Site: {}'.format(stream_name, site))
+                LOGGER.info('  Records Synced for Site: {}'.format(site_total))
+                # End site loop
 
         LOGGER.info('FINISHED Syncing Stream: {}'.format(stream_name))
         LOGGER.info('  Records Synced for Stream: {}'.format(endpoint_total))
