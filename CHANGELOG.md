@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.9
+  * Indent stream-specific logging to be within the stream's execution block
+
 ## 0.0.8
   * Raise error and fail fast if missing pk in record instead of just logging [#9](https://github.com/singer-io/tap-google-search-console/pull/9)
 
