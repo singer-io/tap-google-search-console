@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.10
+  * Use singer library function to ensure automatic fields are treated as selected [#12](https://github.com/singer-io/tap-google-search-console/pull/12)
+
 ## 0.0.9
   * Indent stream-specific logging to be within the stream's execution block
 
