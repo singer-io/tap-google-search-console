@@ -349,7 +349,8 @@ def sync(client, config, catalog, state):
                     mdata = metadata.to_map(stream.metadata)
                     dimensions_all = ['date', 'country', 'device', 'page', 'query']
                     for dim in dimensions_all:
-                        if singer.metadata.get(mdata, ('properties', dim), 'selected'):
+                        if singer.should_sync_field(singer.metadata.get(mdata, ('properties', dim), 'inclusion'),
+                                                    singer.metadata.get(mdata, ('properties', dim), 'selected')):
                             # metadata is selected for the dimension
                             dimensions_list.append(dim)
                     body_params['dimensions'] = dimensions_list
