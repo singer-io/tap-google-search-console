@@ -187,7 +187,7 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
 
 
     @backoff.on_exception(backoff.expo,
-                          (Server5xxError, ConnectionError, Server429Error),
+                          (Server5xxError, ConnectionError, Server429Error, GoogleForbiddenError),
                           max_tries=7,
                           factor=3)
     # Rate Limit:
