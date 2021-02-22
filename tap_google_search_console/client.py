@@ -185,7 +185,11 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
         self.__expires = datetime.utcnow() + timedelta(seconds=data['expires_in'])
         LOGGER.info('Authorized, token expires = {}'.format(self.__expires))
 
-
+    @backoff.on_exception(backoff.constant, 
+                          GoogleForbiddenError,
+                          max_tries=2,  # Only retry once
+                          interval=900,  # Backoff for 15 minutes in case of Quota Exceeded error
+                          jitter=None)  # Interval value not consistent if jitter not None
     @backoff.on_exception(backoff.expo,
                           (Server5xxError, ConnectionError, Server429Error),
                           max_tries=7,

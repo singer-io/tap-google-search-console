@@ -202,6 +202,9 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
         time_extracted = utils.now()
         if not data or data is None or data == {}:
             LOGGER.info('xxx NO DATA xxx')
+
+            if bookmark_field:
+                write_bookmark(state, stream_name, site, sub_type, max_bookmark_value)
             return 0 # No data results
 
         # Transform data with transform_json from transform.py
@@ -226,6 +229,9 @@ def sync_endpoint(client, #pylint: disable=too-many-branches
             LOGGER.info('Number of raw data records: 0')
         if not transformed_data or transformed_data is None:
             LOGGER.info('xxx NO TRANSFORMED DATA xxx')
+
+            if bookmark_field:
+                write_bookmark(state, stream_name, site, sub_type, max_bookmark_value)
             return 0 # No data results
         for record in transformed_data:
             for key in id_fields:
