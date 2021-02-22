@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.0.11
+  * Fix state issue and handle "Quota Exceeded" response [#14](https://github.com/singer-io/tap-google-search-console/pull/14)
+
 ## 0.0.10
   * Use singer library function to ensure automatic fields are treated as selected [#12](https://github.com/singer-io/tap-google-search-console/pull/12)
 
