@@ -28,7 +28,7 @@ jobs:
           name: 'Unit Tests'
           command: |
             source /usr/local/share/virtualenvs/tap-google-search-console/bin/activate
-            nosetests tests/unittests/
+            python -m unittest discover tests/unittests
       - run:
           name: 'Integration Tests Setup'
           command: |
