@@ -25,6 +25,11 @@ jobs:
             source /usr/local/share/virtualenvs/tap-tester/bin/activate
             stitch-validate-json tap_google_search_console/schemas/*.json
       - run:
+          name: 'Unit Tests'
+          command: |
+            source /usr/local/share/virtualenvs/tap-google-search-console/bin/activate
+            nosetests tests/unittests/
+      - run:
           name: 'Integration Tests Setup'
           command: |
             aws s3 cp s3://com-stitchdata-dev-deployment-assets/environments/tap-tester/sandbox dev_env.sh
