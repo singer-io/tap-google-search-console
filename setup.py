@@ -11,7 +11,7 @@ setup(name='tap-google-search-console',
       install_requires=[
           'backoff==1.8.0',
           'requests==2.22.0',
-          'singer-python==5.8.1'
+          'singer-python==5.12.1'
       ],
       extras_require={
           'dev': [

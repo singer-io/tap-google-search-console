@@ -25,24 +25,19 @@ jobs:
             source /usr/local/share/virtualenvs/tap-tester/bin/activate
             stitch-validate-json tap_google_search_console/schemas/*.json
       - run:
-          name: 'Integration Tests Setup'
+          name: 'Integration Tests'
           command: |
-            aws s3 cp s3://com-stitchdata-dev-deployment-assets/environments/tap-tester/sandbox dev_env.sh
-      # TODO: Move tests over from tap-tester repo, leaving out for now
-      #       (https://stitchdata.atlassian.net/browse/SRCE-4768)
-      #- run:
-      #    name: 'Integration Tests'
-      #    command: |
-      #      source dev_env.sh
-      #      source /usr/local/share/virtualenvs/tap-tester/bin/activate
-      #      PYTHONPATH=$PYTHONPATH:/usr/local/share/virtualenvs/tap-google-search-console/lib/python3.5/site-packages/ \
-      #      run-test --tap=tap-google-search-console \
-      #               --target=target-stitch \
-      #               --orchestrator=stitch-orchestrator \
-      #               --email=harrison+sandboxtest@stitchdata.com \
-      #               --password=$SANDBOX_PASSWORD \
-      #               --client-id=50 \
-      #               tests/tap_combined_test.py
+            aws s3 cp s3://com-stitchdata-dev-deployment-assets/environments/tap-tester/tap_tester_sandbox dev_env.sh
+            source dev_env.sh
+            source /usr/local/share/virtualenvs/tap-tester/bin/activate
+            run-test --tap=tap-google-search-console \
+                     --target=target-stitch \
+                     --orchestrator=stitch-orchestrator \
+                     --email=harrison+sandboxtest@stitchdata.com \
+                     --password=$SANDBOX_PASSWORD \
+                     --client-id=50 \
+                     --token=$STITCH_API_TOKEN \
+                     tests
 workflows:
   version: 2
   commit:
