@@ -19,9 +19,10 @@ REQUIRED_CONFIG_KEYS = [
     'user_agent'
 ]
 
-def do_discover():
+def do_discover(client):
 
     LOGGER.info('Starting discover')
+    client.check_sites_access()
     catalog = discover()
     json.dump(catalog.to_dict(), sys.stdout, indent=2)
     LOGGER.info('Finished discover')
@@ -35,6 +36,7 @@ def main():
     with GoogleClient(parsed_args.config['client_id'],
                       parsed_args.config['client_secret'],
                       parsed_args.config['refresh_token'],
+                      parsed_args.config['site_urls'],
                       parsed_args.config['user_agent']) as client:
 
         state = {}
@@ -42,7 +44,7 @@ def main():
             state = parsed_args.state
 
         if parsed_args.discover:
-            do_discover()
+            do_discover(client)
         elif parsed_args.catalog:
             sync(client=client,
                  config=parsed_args.config,
