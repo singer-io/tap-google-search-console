@@ -33,7 +33,7 @@ class GoogleSearchConsoleStartDateTest(GoogleSearchConsoleBaseTest):
         ##########################################################################
 
         # instantiate connection
-        conn_id_1 = connections.ensure_connection(self)
+        conn_id_1 = connections.ensure_connection(self, original_properties=False)
 
         # run check mode
         found_catalogs_1 = self.run_and_verify_check_mode(conn_id_1)
