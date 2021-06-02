@@ -17,15 +17,16 @@ class GoogleSearchConsoleStartDateTest(GoogleSearchConsoleBaseTest):
     def test_run(self):
         """Instantiate start date according to the desired data set and run the test"""
 
-        self.start_date_1 = self.get_properties().get('start_date')
-        self.start_date_2 = self.timedelta_formatted(self.start_date_1, days=1)
+        self.start_date_2 = self.get_properties().get('start_date')
+        self.start_date_1 = self.timedelta_formatted(self.start_date_2, days=-1)
 
         start_date_1_epoch = self.dt_to_ts(self.start_date_1)
         start_date_2_epoch = self.dt_to_ts(self.start_date_2)
 
         self.start_date = self.start_date_1
 
-        expected_streams = self.expected_streams()
+        # Select fewer stream as tests take longer to complete
+        expected_streams = ['sites', 'sitemaps', 'performance_report_date', 'performance_report_device']
 
         ##########################################################################
         ### First Sync

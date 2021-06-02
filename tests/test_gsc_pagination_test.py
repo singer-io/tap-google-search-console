@@ -14,7 +14,7 @@ class PaginationTest(GoogleSearchConsoleBaseTest):
         conn_id = connections.ensure_connection(self)
 
         # Checking pagination for "performance_report_custom" stream
-        expected_streams = ["performance_report_custom"]
+        expected_streams = ["performance_report_page"]
         found_catalogs = self.run_and_verify_check_mode(conn_id)
 
         # table and field selection

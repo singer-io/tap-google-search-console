@@ -48,7 +48,7 @@ class GoogleSearchConsoleBaseTest(unittest.TestCase):
     def get_properties(self, original: bool = True):
         """Configuration properties required for the tap."""
         properties_dict = {
-            'start_date': dt.strftime(dt.utcnow()-timedelta(days=15), self.START_DATE_FORMAT),
+            'start_date': dt.strftime(dt.utcnow()-timedelta(days=14), self.START_DATE_FORMAT),
         }
         props = self.properties
         for prop in props:
