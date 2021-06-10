@@ -153,38 +153,33 @@ ERROR_CODE_EXCEPTION_MAPPING = {
 }
 
 def raise_for_error(response):
+    # Forming a response message for raising custom exception
+    content_length = len(response.content)
+    if content_length == 0:
+        # There is nothing we can do here since Google has neither sent
+        # us a 2xx response nor a response content.
+        return
     try:
-        response.raise_for_status()
-    except (requests.HTTPError, requests.ConnectionError) as error:
-        try:
-            content_length = len(response.content)
-            if content_length == 0:
-                # There is nothing we can do here since Google has neither sent
-                # us a 2xx response nor a response content.
-                return
-            try:
-                response_json = response.json()
-            except Exception:
-                response_json = {}
+        response_json = response.json()
+    except Exception:
+        response_json = {}
 
-            error_code = response.status_code
-            error_message = response_json.get("error_description") or response_json.get("error",
-                ERROR_CODE_EXCEPTION_MAPPING.get(error_code,
-                    {})).get("message", "An Unknown Error occurred, please try after some time.")
+    error_code = response.status_code
+    error_message = response_json.get("error_description") or response_json.get("error",
+        ERROR_CODE_EXCEPTION_MAPPING.get(error_code,
+            {})).get("message", "An Unknown Error occurred, please try after some time.")
 
-            message = "HTTP-error-code: {}, Error: {}".format(
-                error_code, error_message)
+    message = "HTTP-error-code: {}, Error: {}".format(
+        error_code, error_message)
 
-            # Raise GoogleQuotaExceededError if 403 error code returned due to QuotaExceeded
-            response_error = json.dumps(response_json.get('error', str(error)))
-            if error_code == 403 and "quotaExceeded" in response_error:
-                ex = GoogleQuotaExceededError
-            else:
-                ex = ERROR_CODE_EXCEPTION_MAPPING.get(error_code, {}).get("raise_exception", GoogleError)
-            raise ex(message) from None
+    # Raise GoogleQuotaExceededError if 403 error code returned due to QuotaExceeded
+    response_error = json.dumps(response_json.get('error', error_message))
+    if error_code == 403 and "quotaExceeded" in response_error:
+        ex = GoogleQuotaExceededError
+    else:
+        ex = ERROR_CODE_EXCEPTION_MAPPING.get(error_code, {}).get("raise_exception", GoogleError)
+    raise ex(message) from None
 
-        except (ValueError, TypeError):
-            raise GoogleError(error) from None
 
 class GoogleClient: # pylint: disable=too-many-instance-attributes
     def __init__(self,
