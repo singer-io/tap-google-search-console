@@ -4,11 +4,11 @@ import unittest
 import requests
 
 class Mockresponse:
-    def __init__(self, status_code, json, raise_error, text=None):
+    def __init__(self, status_code, json, raise_error, text=None, content=None):
         self.status_code = status_code
         self.raise_error = raise_error
         self.text = json
-        self.content = "google search console"
+        self.content = content if content is not None else "google search console"
 
     def raise_for_status(self):
         if not self.raise_error:
@@ -19,12 +19,19 @@ class Mockresponse:
     def json(self):
         return self.text
 
-def get_response(status_code, json={}, raise_error=False):
-    return Mockresponse(status_code, json, raise_error)
+def get_response(status_code, json={}, raise_error=False, content=None):
+    return Mockresponse(status_code, json, raise_error, content=content)
 
 @mock.patch("requests.Session.request")
 @mock.patch("tap_google_search_console.client.GoogleClient.get_access_token")
 class TestExceptionHandling(unittest.TestCase):
+
+    def test_zero_content_length(self, mocked_access_token, mocked_request):
+        mocked_request.return_value = get_response(400, json=None, raise_error = True, content='')
+        google_client = client.GoogleClient("", "", "", "")
+
+        with self.assertRaises(client.GoogleBadRequestError):
+            google_client.request("")
 
     def test_400_error(self, mocked_access_token, mocked_request):
         mocked_request.return_value = get_response(400, raise_error = True)
