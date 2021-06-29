@@ -154,11 +154,7 @@ ERROR_CODE_EXCEPTION_MAPPING = {
 
 def raise_for_error(response):
     # Forming a response message for raising custom exception
-    content_length = len(response.content)
-    if content_length == 0:
-        # There is nothing we can do here since Google has neither sent
-        # us a 2xx response nor a response content.
-        return
+
     try:
         response_json = response.json()
     except Exception:
