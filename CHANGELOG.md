@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.1.0
+  * Add API connection check in Discovery Mode [#17](https://github.com/singer-io/tap-google-search-console/pull/17)
+  * Add integration tests [#18](https://github.com/singer-io/tap-google-search-console/pull/18)
+  * Fix error response error handling [#19](https://github.com/singer-io/tap-google-search-console/pull/19)
+  * Fix bug in error response handling [#21](https://github.com/singer-io/tap-google-search-console/pull/21)
+
 ## 0.0.11
   * Fix state issue and handle "Quota Exceeded" response [#14](https://github.com/singer-io/tap-google-search-console/pull/14)
 
