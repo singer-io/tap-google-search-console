@@ -46,7 +46,7 @@ STREAMS = {
         },
         'bookmark_type': 'datetime',
         'pagination': 'body',
-        'sub_types': ['web', 'image', 'video']
+        'sub_types': ['web', 'image', 'video', 'news', 'googleNews', 'discover']
     },
 
     'performance_report_date': {
@@ -63,7 +63,7 @@ STREAMS = {
         },
         'bookmark_type': 'datetime',
         'pagination': 'body',
-        'sub_types': ['web', 'image', 'video']
+        'sub_types': ['web', 'image', 'video', 'news', 'googleNews', 'discover']
     },
 
     'performance_report_country': {
@@ -80,7 +80,7 @@ STREAMS = {
         },
         'bookmark_type': 'datetime',
         'pagination': 'body',
-        'sub_types': ['web', 'image', 'video']
+        'sub_types': ['web', 'image', 'video', 'news', 'googleNews', 'discover']
     },
 
     'performance_report_device': {
@@ -97,7 +97,7 @@ STREAMS = {
         },
         'bookmark_type': 'datetime',
         'pagination': 'body',
-        'sub_types': ['web', 'image', 'video']
+        'sub_types': ['web', 'image', 'video', 'news', 'googleNews', 'discover']
     },
 
     'performance_report_page': {
@@ -114,7 +114,7 @@ STREAMS = {
         },
         'bookmark_type': 'datetime',
         'pagination': 'body',
-        'sub_types': ['web', 'image', 'video']
+        'sub_types': ['web', 'image', 'video', 'news', 'googleNews', 'discover']
     },
 
     'performance_report_query': {
@@ -131,6 +131,6 @@ STREAMS = {
         },
         'bookmark_type': 'datetime',
         'pagination': 'body',
-        'sub_types': ['web', 'image', 'video']
+        'sub_types': ['web', 'image', 'video', 'news', 'googleNews', 'discover']
     },
 }
