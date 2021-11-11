@@ -28,7 +28,13 @@ jobs:
           name: 'Unit Tests'
           command: |
             source /usr/local/share/virtualenvs/tap-google-search-console/bin/activate
-            python -m unittest discover tests/unittests
+            pip install nose coverage
+            nosetests --with-coverage --cover-erase --cover-package=tap_google_search_console --cover-html-dir=htmlcov tests/unittests
+            coverage html
+      - store_test_results:
+          path: test_output/report.xml
+      - store_artifacts:
+          path: htmlcov
       - run:
           name: 'Integration Tests'
           command: |
