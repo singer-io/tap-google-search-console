@@ -183,6 +183,7 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
                  client_secret,
                  refresh_token,
                  site_urls,
+                 timeout_from_config,
                  user_agent=None):
         self.__client_id = client_id
         self.__client_secret = client_secret
@@ -193,6 +194,13 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
         self.__expires = None
         self.__session = requests.Session()
         self.base_url = None
+        self.request_timeout = 300 # set the default timeout of 300 seconds
+
+        # if the 'timeout_from_config' value is 0, "0", "" or not passed then do not change default value of 300 seconds.
+        if timeout_from_config and float(timeout_from_config):
+            timeout_value = float(timeout_from_config)
+            # update the request timeout for the requests
+            self.request_timeout = timeout_value
 
     def check_sites_access(self):
         site_list = self.__site_urls.replace(" ", "").split(",")
@@ -213,7 +221,7 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
         self.__session.close()
 
     @backoff.on_exception(backoff.expo,
-                          Server5xxError,
+                          (Server5xxError, requests.Timeout),
                           max_tries=5,
                           factor=2)
     def get_access_token(self):
@@ -234,7 +242,8 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
                 'client_id': self.__client_id,
                 'client_secret': self.__client_secret,
                 'refresh_token': self.__refresh_token,
-            })
+            },
+            timeout=self.request_timeout)
 
         if response.status_code != 200:
             raise_for_error(response)
@@ -253,6 +262,10 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
                           (Server5xxError, ConnectionError, GoogleRateLimitExceeded),
                           max_tries=7,
                           factor=3)
+    @backoff.on_exception(backoff.expo,
+                          requests.Timeout,
+                          max_tries=5,
+                          factor=2)
     # Rate Limit:
     #  https://developers.google.com/webmaster-tools/search-console-api-original/v3/limits
     @utils.ratelimit(1200, 60)
@@ -284,7 +297,7 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
             kwargs['headers']['Content-Type'] = 'application/json'
 
         with metrics.http_request_timer(endpoint) as timer:
-            response = self.__session.request(method, url, **kwargs)
+            response = self.__session.request(method, url, timeout=self.request_timeout, **kwargs)
             timer.tags[metrics.Tag.http_status_code] = response.status_code
 
         if response.status_code != 200:
