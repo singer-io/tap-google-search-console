@@ -183,8 +183,8 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
                  client_secret,
                  refresh_token,
                  site_urls,
-                 timeout_from_config,
-                 user_agent=None):
+                 user_agent=None,
+                 timeout_from_config=None):
         self.__client_id = client_id
         self.__client_secret = client_secret
         self.__refresh_token = refresh_token
