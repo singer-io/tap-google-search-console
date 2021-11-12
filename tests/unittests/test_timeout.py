@@ -18,8 +18,7 @@ class TestTimeoutValue(unittest.TestCase):
             "user_agent": "test_user_agent"
         }
 
-        # ini
-        #       # initialize 'GoogleClient'tialize 'GoogleClient'
+        # initialize 'GoogleClient'
         cl = client.GoogleClient(config['client_id'],
                                     config['client_secret'],
                                     config['refresh_token'],
@@ -178,7 +177,6 @@ class TestTimeoutBackoff(unittest.TestCase):
         # verify that we backoff for 5 times
         self.assertEquals(mocked_request.call_count, 5)
 
-        # initialize 'GoogleClient'
     @mock.patch("tap_google_search_console.client.GoogleClient.get_access_token")
     def test_timeout_error__request(self, mocked_get_access_token, mocked_request, mocked_sleep):
 

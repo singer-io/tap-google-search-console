@@ -12,6 +12,8 @@ BASE_URL = 'https://www.googleapis.com/webmasters/v3'
 GOOGLE_TOKEN_URI = 'https://oauth2.googleapis.com/token'
 LOGGER = singer.get_logger()
 
+# set default timeout of 300 seconds
+REQUEST_TIMEOUT = 300
 
 class GoogleError(Exception):
     pass
@@ -194,13 +196,15 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
         self.__expires = None
         self.__session = requests.Session()
         self.base_url = None
-        self.request_timeout = 300 # set the default timeout of 300 seconds
 
-        # if the 'timeout_from_config' value is 0, "0", "" or not passed then do not change default value of 300 seconds.
+        # if the 'timeout_from_config' value is 0, "0", "" or not passed then set default value of 300 seconds.
         if timeout_from_config and float(timeout_from_config):
             timeout_value = float(timeout_from_config)
             # update the request timeout for the requests
             self.request_timeout = timeout_value
+        else:
+            # set the default timeout of 300 seconds
+            self.request_timeout = REQUEST_TIMEOUT
 
     def check_sites_access(self):
         site_list = self.__site_urls.replace(" ", "").split(",")
