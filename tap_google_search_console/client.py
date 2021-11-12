@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from urllib.parse import quote
 import backoff
 import requests
+from requests.exceptions import Timeout, ConnectionError
 
 import singer
 from singer import metrics
@@ -224,8 +225,14 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
     def __exit__(self, exception_type, exception_value, traceback):
         self.__session.close()
 
+    # during 'Timeout' error there is also possibility of 'ConnectionError',
+    # hence added backoff for 'ConnectionError' too.
     @backoff.on_exception(backoff.expo,
-                          (Server5xxError, requests.Timeout),
+                          (Timeout),
+                          max_tries=5,
+                          factor=3)
+    @backoff.on_exception(backoff.expo,
+                          (Server5xxError, ConnectionError),
                           max_tries=5,
                           factor=2)
     def get_access_token(self):
@@ -258,6 +265,10 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
         LOGGER.info('Authorized, token expires = {}'.format(self.__expires))
 
     @backoff.on_exception(backoff.constant,
+                          (Timeout),
+                          max_tries=5,
+                          interval=10)
+    @backoff.on_exception(backoff.constant,
                           GoogleQuotaExceededError,
                           max_tries=2,  # Only retry once
                           interval=900,  # Backoff for 15 minutes in case of Quota Exceeded error
@@ -266,10 +277,6 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
                           (Server5xxError, ConnectionError, GoogleRateLimitExceeded),
                           max_tries=7,
                           factor=3)
-    @backoff.on_exception(backoff.expo,
-                          requests.Timeout,
-                          max_tries=5,
-                          factor=2)
     # Rate Limit:
     #  https://developers.google.com/webmaster-tools/search-console-api-original/v3/limits
     @utils.ratelimit(1200, 60)
