@@ -218,6 +218,16 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
             body = {'startDate': '2021-04-01', 'endDate': '2021-05-01'}
             self.post(path=path, data=json.dumps(body))
 
+    # during 'Timeout' error there is also possibility of 'ConnectionError',
+    # hence added backoff for 'ConnectionError' too.
+    @backoff.on_exception(backoff.expo,
+                          Timeout,
+                          max_tries=5,
+                          factor=2)
+    @backoff.on_exception(backoff.expo,
+                          ConnectionError,
+                          max_tries=5,
+                          factor=2)
     def __enter__(self):
         self.get_access_token()
         return self
@@ -225,14 +235,8 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
     def __exit__(self, exception_type, exception_value, traceback):
         self.__session.close()
 
-    # during 'Timeout' error there is also possibility of 'ConnectionError',
-    # hence added backoff for 'ConnectionError' too.
     @backoff.on_exception(backoff.expo,
-                          (Timeout),
-                          max_tries=5,
-                          factor=3)
-    @backoff.on_exception(backoff.expo,
-                          (Server5xxError, ConnectionError),
+                          Server5xxError,
                           max_tries=5,
                           factor=2)
     def get_access_token(self):

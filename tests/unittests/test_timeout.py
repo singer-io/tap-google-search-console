@@ -161,24 +161,22 @@ class TestTimeoutBackoff(unittest.TestCase):
         }
 
         # initialize 'GoogleClient'
-        cl = client.GoogleClient(config['client_id'],
-                                 config['client_secret'],
-                                 config['refresh_token'],
-                                 config['site_urls'],
-                                 user_agent=config['user_agent'],
-                                 timeout_from_config=config.get('request_timeout'))
-
         try:
-            # function call
-            cl.get_access_token()
+            with client.GoogleClient(config['client_id'],
+                                     config['client_secret'],
+                                     config['refresh_token'],
+                                     config['site_urls'],
+                                     user_agent=config['user_agent'],
+                                     timeout_from_config=config.get('request_timeout')) as cl:
+                pass
+
         except requests.Timeout:
             pass
 
         # verify that we backoff for 5 times
         self.assertEquals(mocked_request.call_count, 5)
 
-    @mock.patch("tap_google_search_console.client.GoogleClient.get_access_token")
-    def test_timeout_error__request(self, mocked_get_access_token, mocked_request, mocked_sleep):
+    def test_timeout_error__request(self, mocked_request, mocked_sleep):
 
         # mock request and raise the 'Timeout' error
         mocked_request.side_effect = requests.Timeout
@@ -231,16 +229,14 @@ class TestConnectionErrorBackoff(unittest.TestCase):
         }
 
         # initialize 'GoogleClient'
-        cl = client.GoogleClient(config['client_id'],
-                                 config['client_secret'],
-                                 config['refresh_token'],
-                                 config['site_urls'],
-                                 user_agent=config['user_agent'],
-                                 timeout_from_config=config.get('request_timeout'))
-
         try:
-            # function call
-            cl.get_access_token()
+            with client.GoogleClient(config['client_id'],
+                                     config['client_secret'],
+                                     config['refresh_token'],
+                                     config['site_urls'],
+                                     user_agent=config['user_agent'],
+                                     timeout_from_config=config.get('request_timeout')) as cl:
+                pass
         except requests.ConnectionError:
             pass
 
