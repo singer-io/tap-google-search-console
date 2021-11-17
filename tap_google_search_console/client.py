@@ -221,11 +221,7 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
     # during 'Timeout' error there is also possibility of 'ConnectionError',
     # hence added backoff for 'ConnectionError' too.
     @backoff.on_exception(backoff.expo,
-                          Timeout,
-                          max_tries=5,
-                          factor=2)
-    @backoff.on_exception(backoff.expo,
-                          ConnectionError,
+                          (Timeout, ConnectionError),
                           max_tries=5,
                           factor=2)
     def __enter__(self):
