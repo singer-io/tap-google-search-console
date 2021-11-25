@@ -200,9 +200,8 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
 
         # if the 'timeout_from_config' value is 0, "0", "" or not passed then set default value of 300 seconds.
         if timeout_from_config and float(timeout_from_config):
-            timeout_value = float(timeout_from_config)
             # update the request timeout for the requests
-            self.request_timeout = timeout_value
+            self.request_timeout = float(timeout_from_config)
         else:
             # set the default timeout of 300 seconds
             self.request_timeout = REQUEST_TIMEOUT
