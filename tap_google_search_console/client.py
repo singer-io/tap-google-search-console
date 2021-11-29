@@ -273,7 +273,7 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
                           Timeout,
                           max_tries=5,
                           interval=10,
-                          jitter=None)
+                          jitter=None) # Interval value not consistent if jitter not None
     @backoff.on_exception(backoff.expo,
                           (Server5xxError, ConnectionError, GoogleRateLimitExceeded),
                           max_tries=7,
