@@ -3,7 +3,7 @@
 from setuptools import setup, find_packages
 
 setup(name='tap-google-search-console',
-      version='0.1.0',
+      version='0.1.1',
       description='Singer.io tap for extracting data from the Google Search Console API',
       author='jeff.huth@bytecode.io',
       classifiers=['Programming Language :: Python :: 3 :: Only'],
