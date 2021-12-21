@@ -1,5 +1,7 @@
 # Changelog
 
+## 0.1.1
+  * Request Timeout Implementation [#27](https://github.com/singer-io/tap-google-search-console/pull/27)
 ## 0.1.0
   * Add API connection check in Discovery Mode [#17](https://github.com/singer-io/tap-google-search-console/pull/17)
   * Add integration tests [#18](https://github.com/singer-io/tap-google-search-console/pull/18)
