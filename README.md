@@ -132,7 +132,7 @@ The [**Google Search Console Setup & Authentication**](https://drive.google.com/
     - [singer-tools](https://github.com/singer-io/singer-tools)
     - [target-stitch](https://github.com/singer-io/target-stitch)
 
-3. Create your tap's `config.json` file. Include the client_id, client_secret, refresh_token, site_urls (website URL properties in a comma delimited list; do not include the domain-level property in the list), start_date (UTC format), and user_agent (tap name with the api user email address).
+3. Create your tap's `config.json` file. Include the client_id, client_secret, refresh_token, site_urls (website URL properties in a comma delimited list; do not include the domain-level property in the list), start_date (UTC format), user_agent (tap name with the api user email address) and request_timeout (the timeout for the requests. Default: 300).
 
     ```json
     {
@@ -141,7 +141,8 @@ The [**Google Search Console Setup & Authentication**](https://drive.google.com/
         "refresh_token": "YOUR_REFRESH_TOKEN",
         "site_urls": "https://example.com, https://www.example.com, http://example.com, http://www.example.com, sc-domain:example.com",
         "start_date": "2019-01-01T00:00:00Z",
-        "user_agent": "tap-google-search-console <api_user_email@example.com>"
+        "user_agent": "tap-google-search-console <api_user_email@example.com>",
+        "request_timeout": 300
     }
     ```
     

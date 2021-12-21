@@ -3,6 +3,7 @@ from datetime import datetime, timedelta
 from urllib.parse import quote
 import backoff
 import requests
+from requests.exceptions import Timeout, ConnectionError
 
 import singer
 from singer import metrics
@@ -12,6 +13,8 @@ BASE_URL = 'https://www.googleapis.com/webmasters/v3'
 GOOGLE_TOKEN_URI = 'https://oauth2.googleapis.com/token'
 LOGGER = singer.get_logger()
 
+# set default timeout of 300 seconds
+REQUEST_TIMEOUT = 300
 
 class GoogleError(Exception):
     pass
@@ -183,7 +186,8 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
                  client_secret,
                  refresh_token,
                  site_urls,
-                 user_agent=None):
+                 user_agent=None,
+                 timeout_from_config=REQUEST_TIMEOUT):
         self.__client_id = client_id
         self.__client_secret = client_secret
         self.__refresh_token = refresh_token
@@ -193,6 +197,14 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
         self.__expires = None
         self.__session = requests.Session()
         self.base_url = None
+
+        # if the 'timeout_from_config' value is 0, "0", "" or not passed then set default value of 300 seconds.
+        if timeout_from_config and float(timeout_from_config):
+            # update the request timeout for the requests
+            self.request_timeout = float(timeout_from_config)
+        else:
+            # set the default timeout of 300 seconds
+            self.request_timeout = REQUEST_TIMEOUT
 
     def check_sites_access(self):
         site_list = self.__site_urls.replace(" ", "").split(",")
@@ -205,6 +217,12 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
             body = {'startDate': '2021-04-01', 'endDate': '2021-05-01'}
             self.post(path=path, data=json.dumps(body))
 
+    # during 'Timeout' error there is also possibility of 'ConnectionError',
+    # hence added backoff for 'ConnectionError' too.
+    @backoff.on_exception(backoff.expo,
+                          (Timeout, ConnectionError),
+                          max_tries=5,
+                          factor=2)
     def __enter__(self):
         self.get_access_token()
         return self
@@ -234,7 +252,8 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
                 'client_id': self.__client_id,
                 'client_secret': self.__client_secret,
                 'refresh_token': self.__refresh_token,
-            })
+            },
+            timeout=self.request_timeout)
 
         if response.status_code != 200:
             raise_for_error(response)
@@ -249,6 +268,12 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
                           max_tries=2,  # Only retry once
                           interval=900,  # Backoff for 15 minutes in case of Quota Exceeded error
                           jitter=None)  # Interval value not consistent if jitter not None
+    # backoff for 5 times, with 10 seconds consistent interval
+    @backoff.on_exception(backoff.constant,
+                          Timeout,
+                          max_tries=5,
+                          interval=10,
+                          jitter=None) # Interval value not consistent if jitter not None
     @backoff.on_exception(backoff.expo,
                           (Server5xxError, ConnectionError, GoogleRateLimitExceeded),
                           max_tries=7,
@@ -284,7 +309,7 @@ class GoogleClient: # pylint: disable=too-many-instance-attributes
             kwargs['headers']['Content-Type'] = 'application/json'
 
         with metrics.http_request_timer(endpoint) as timer:
-            response = self.__session.request(method, url, **kwargs)
+            response = self.__session.request(method, url, timeout=self.request_timeout, **kwargs)
             timer.tags[metrics.Tag.http_status_code] = response.status_code
 
         if response.status_code != 200:

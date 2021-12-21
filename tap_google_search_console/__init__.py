@@ -37,7 +37,8 @@ def main():
                       parsed_args.config['client_secret'],
                       parsed_args.config['refresh_token'],
                       parsed_args.config['site_urls'],
-                      parsed_args.config['user_agent']) as client:
+                      parsed_args.config['user_agent'],
+                      parsed_args.config.get('request_timeout')) as client:
 
         state = {}
         if parsed_args.state:
