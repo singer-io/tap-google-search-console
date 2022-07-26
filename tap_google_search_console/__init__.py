@@ -24,7 +24,7 @@ def do_discover(client):
     LOGGER.info('Starting discover')
     client.check_sites_access()
     catalog = discover()
-    json.dump(catalog.to_dict(), sys.stdout, indent=2)
+    catalog.dump()
     LOGGER.info('Finished discover')
 
 
