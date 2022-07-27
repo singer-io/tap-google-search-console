@@ -10,7 +10,7 @@ class PerformanceReportCustom(IncremetalStream):
     """
 
     tap_stream_id = "performance_report_custom"
-    key_properties = ("site_url", "search_type", "date", "dimensions_hash_key")
+    key_properties = ["site_url", "search_type", "date", "dimensions_hash_key"]
     replication_key = "date"
     valid_replication_keys = ("date",)
 
@@ -23,9 +23,6 @@ class PerformanceReportCustom(IncremetalStream):
 
     def get_records(self):
         LOGGER.info("get records called from %s", self.__class__)
-
-    def sync(self):
-        LOGGER.info("sync called from %s", self.__class__)
 
 
 class PerformanceReportDate(IncremetalStream):
@@ -34,7 +31,7 @@ class PerformanceReportDate(IncremetalStream):
     """
 
     tap_stream_id = "performance_report_date"
-    key_properties = ("site_url", "search_type", "date")
+    key_properties = ["site_url", "search_type", "date"]
     replication_key = "date"
 
     valid_replication_keys = ("date",)
@@ -48,9 +45,6 @@ class PerformanceReportDate(IncremetalStream):
 
     def get_records(self):
         LOGGER.info("get records called from %s", self.__class__)
-
-    def sync(self):
-        LOGGER.info("sync called from %s", self.__class__)
 
 
 class PerformanceReportCountry(IncremetalStream):
@@ -74,8 +68,6 @@ class PerformanceReportCountry(IncremetalStream):
     def get_records(self):
         LOGGER.info("get records called from %s", self.__class__)
 
-    def sync(self):
-        LOGGER.info("sync called from %s", self.__class__)
 
 
 class PerformanceReportDevices(IncremetalStream):
@@ -99,9 +91,6 @@ class PerformanceReportDevices(IncremetalStream):
     def get_records(self):
         LOGGER.info("get records called from %s", self.__class__)
 
-    def sync(self):
-        LOGGER.info("sync called from %s", self.__class__)
-
 
 class PerformanceReportPage(IncremetalStream):
     """
@@ -109,7 +98,7 @@ class PerformanceReportPage(IncremetalStream):
     """
 
     tap_stream_id = "performance_report_page"
-    key_properties =("site_url", "search_type", "date", "page")
+    key_properties =["site_url", "search_type", "date", "page"]
     replication_key = "date"
 
     valid_replication_keys = ("date","page")
@@ -124,8 +113,6 @@ class PerformanceReportPage(IncremetalStream):
     def get_records(self):
         LOGGER.info("get records called from %s", self.__class__)
 
-    def sync(self):
-        LOGGER.info("sync called from %s", self.__class__)
 
 
 class PerformanceReportQuery(IncremetalStream):
@@ -149,5 +136,3 @@ class PerformanceReportQuery(IncremetalStream):
     def get_records(self):
         LOGGER.info("get records called from %s", self.__class__)
 
-    def sync(self):
-        LOGGER.info("sync called from %s", self.__class__)

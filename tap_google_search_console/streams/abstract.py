@@ -96,6 +96,9 @@ class IncremetalStream(BaseStream):
     replication_method = "INCREMENTAL"
     forced_replication_method = "INCREMENTAL"
 
+    def sync(self,state :dict,schema :dict,stream_metadata :dict,transformer):
+        LOGGER.info("sync called from %s", self.__class__)
+        return state
 
 class FullTableStream(BaseStream):
     """
@@ -106,3 +109,7 @@ class FullTableStream(BaseStream):
     forced_replication_method = "FULL_TABLE"
     valid_replication_keys = None
     replication_key = None
+
+    def sync(self,state,schema,stream_metadata,transformer):
+        LOGGER.info("sync called from %s", self.__class__)
+        return state

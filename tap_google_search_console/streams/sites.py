@@ -10,17 +10,15 @@ class Sites(FullTableStream):
     """
 
     tap_stream_id = "sites"
-    key_properties = ("site_url",)
+    key_properties = ["site_url",]
 
     data_key = "site_entry"
     path = ("sites/{}",)
 
     def __init__(self, client=None) -> None:
-        LOGGER.info("invoked %s", self.__class__)
+        # LOGGER.info("invoked %s", self.__class__) ss
         super().__init__(client)
 
     def get_records(self):
-        LOGGER.info("get records called from %s", self.__class__)
-
-    def sync(self):
-        LOGGER.info("sync called from %s", self.__class__)
+        pass
+        # LOGGER.info("get records called from %s", self.__class__)

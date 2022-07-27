@@ -10,7 +10,7 @@ class Sitemaps(FullTableStream):
     """
 
     tap_stream_id = "sitemaps"
-    key_properties = ("site_url", "path", "last_submitted")
+    key_properties = ["site_url", "path", "last_submitted"]
 
     data_key = "sitemap"
     path = ("sites/{}/sitemaps",)
@@ -22,5 +22,3 @@ class Sitemaps(FullTableStream):
     def get_records(self):
         LOGGER.info("get records called from %s", self.__class__)
 
-    def sync(self):
-        LOGGER.info("sync called from %s", self.__class__)

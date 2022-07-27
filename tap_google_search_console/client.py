@@ -26,10 +26,10 @@ REQUEST_TIMEOUT = 300
 class GoogleClient:  # pylint: disable=too-many-instance-attributes
     def __init__(self, client_id: str, client_secret: str,
                  refresh_token: str, site_urls: str, user_agent=None,
-                 timeout=REQUEST_TIMEOUT):
+                 timeout=REQUEST_TIMEOUT, config :dict = None):
 
         self.__client_id, self.__client_secret, self.__refresh_token = (client_id, client_secret, refresh_token)
-        self.__site_urls, self.__user_agent = site_urls, user_agent
+        self.__site_urls, self.__user_agent,self.config = site_urls, user_agent,config
         self.__access_token, self.__expires, self.base_url = None, None, None
         self.__session = requests.Session()
 

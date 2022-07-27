@@ -19,7 +19,7 @@ def get_schemas() -> tuple[dict,dict]:
 
     return streams, stream_metadata
 
-def discover():
+def discover(config:dict):
     """
     TODO: Permission Check
     """

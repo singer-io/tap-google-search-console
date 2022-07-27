@@ -1,15 +1,9 @@
 #!/usr/bin/env python3
-
-import sys
-import json
-import argparse
-import singer
-from singer import metadata, utils
-from tap_google_search_console.client import GoogleClient
+from singer import utils,get_logger
 from tap_google_search_console.discover import discover
 from tap_google_search_console.sync import sync
 
-LOGGER = singer.get_logger()
+LOGGER = get_logger()
 
 REQUIRED_CONFIG_KEYS = [
     'client_id',
@@ -19,38 +13,25 @@ REQUIRED_CONFIG_KEYS = [
     'user_agent'
 ]
 
-def do_discover(client):
-
-    LOGGER.info('Starting discover')
-    client.check_sites_access()
-    catalog = discover()
-    catalog.dump()
-    LOGGER.info('Finished discover')
 
 
-@singer.utils.handle_top_exception(LOGGER)
+@utils.handle_top_exception(LOGGER)
 def main():
+    # Parse command line arguments
+    args = utils.parse_args(REQUIRED_CONFIG_KEYS)
 
-    parsed_args = singer.utils.parse_args(REQUIRED_CONFIG_KEYS)
+    # If discover flag was passed, run discovery mode and dump output to stdout
+    if args.discover:
+        catalog = discover(args.config)
+        catalog.dump()
+    # Otherwise run in sync mode
+    else:
+        if args.catalog:
+            catalog = args.catalog
+        else:
+            catalog = discover(args.config)
+        sync(args.config, args.state, catalog)
 
-    with GoogleClient(parsed_args.config['client_id'],
-                      parsed_args.config['client_secret'],
-                      parsed_args.config['refresh_token'],
-                      parsed_args.config['site_urls'],
-                      parsed_args.config['user_agent'],
-                      parsed_args.config.get('request_timeout')) as client:
 
-        state = {}
-        if parsed_args.state:
-            state = parsed_args.state
-
-        if parsed_args.discover:
-            do_discover(client)
-        elif parsed_args.catalog:
-            sync(client=client,
-                 config=parsed_args.config,
-                 catalog=parsed_args.catalog,
-                 state=state)
-
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
