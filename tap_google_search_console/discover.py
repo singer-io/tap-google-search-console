@@ -1,5 +1,5 @@
 import json
-from singer.catalog import Catalog, CatalogEntry
+from singer.catalog import Catalog
 from tap_google_search_console.helpers import get_abs_path
 from tap_google_search_console.streams import STREAMS
 

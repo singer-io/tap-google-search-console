@@ -4,16 +4,16 @@ from singer.logger import get_logger
 LOGGER = get_logger()
 
 
-class Sites(FullTableStream):
+class Sitemaps(FullTableStream):
     """
-    Class Representing the `Sites` Stream
+    Class Representing the `Sitemaps` Stream
     """
 
     tap_stream_id = "sites"
-    key_properties = ["site_url"]
+    key_properties = ("site_url", "path", "last_submitted")
 
-    data_key = "site_entry"
-    path = ("sites/{}",)
+    data_key = "sitemap"
+    path = ("sites/{}/sitemaps",)
 
     def __init__(self, client=None) -> None:
         LOGGER.info("invoked %s", self.__class__)

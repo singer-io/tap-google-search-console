@@ -46,6 +46,7 @@ class GoogleClient:  # pylint: disable=too-many-instance-attributes
 
     @backoff.on_exception(backoff.expo,(Timeout, ConnectionError),max_tries=5,factor=2)
     def __enter__(self):
+        # TODO: Remove backoff decorator and update unit tests
         self.get_access_token()
         return self
     
@@ -55,6 +56,7 @@ class GoogleClient:  # pylint: disable=too-many-instance-attributes
     @backoff.on_exception(backoff.expo, (Server5xxError), max_tries=5, factor=2)
     def get_access_token(self) -> None:
         """Performs authentication and the access token if expired"""
+        # TODO: Remove backoff decorator and update unit tests
 
         if self.__access_token and self.__expires > datetime.utcnow():
             return
@@ -88,6 +90,8 @@ class GoogleClient:  # pylint: disable=too-many-instance-attributes
     @utils.ratelimit(1200, 60)
     def request(self, method: str, path: str = None, url: str = None, **kwargs) -> Any:
         """Wrapper method around request.sessions get/post method using the session object of the GoogleClient Object"""
+
+        #TODO: Consolidate multiple backoff decorators
         self.get_access_token()
         url = url or f"{self.base_url or BASE_URL}/{path}"
 
