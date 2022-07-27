@@ -10,7 +10,7 @@ class Sites(FullTableStream):
     """
 
     tap_stream_id = "sites"
-    key_properties = ["site_url"]
+    key_properties = ("site_url",)
 
     data_key = "site_entry"
     path = ("sites/{}",)

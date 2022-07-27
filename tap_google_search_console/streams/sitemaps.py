@@ -9,7 +9,7 @@ class Sitemaps(FullTableStream):
     Class Representing the `Sitemaps` Stream
     """
 
-    tap_stream_id = "sites"
+    tap_stream_id = "sitemaps"
     key_properties = ("site_url", "path", "last_submitted")
 
     data_key = "sitemap"

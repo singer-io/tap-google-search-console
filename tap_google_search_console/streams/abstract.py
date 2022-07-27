@@ -72,8 +72,7 @@ class BaseStream(ABC):
         """
         Returns a `dict` for generating stream metadata
         """
-        metadata = get_standard_metadata(
-            **{
+        metadata = get_standard_metadata(**{
                 "schema": schema,
                 "key_properties": cls.key_properties,
                 "valid_replication_keys": cls.valid_replication_keys,
@@ -81,14 +80,10 @@ class BaseStream(ABC):
                 or cls.forced_replication_method,
             }
         )
-        # if cls.replication_key is not None:
-        #     metadata = write(metadata, (), "lll", cls.replication_key)
-        # if cls.valid_replication_keys is not None:
-        #     for key in cls.valid_replication_keys:
-        #         LOGGER.info(key)
-        #         metadata = write(
-        #             metadata, ("properties", key), "inclusion", "automatic"
-        #         )
+        if cls.replication_key is not None:
+            meta = metadata[0]["metadata"]
+            meta.update({"replication-key":cls.replication_key})
+            metadata[0]["metadata"] = meta
         return metadata
 
 
