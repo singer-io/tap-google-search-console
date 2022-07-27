@@ -112,7 +112,7 @@ class PerformanceReportPage(IncremetalStream):
     key_properties =("site_url", "search_type", "date", "page")
     replication_key = "date"
 
-    valid_replication_keys = ("date",)
+    valid_replication_keys = ("date","page")
 
     data_key = "rows"
     path = "sites/{}/searchAnalytics/query"
