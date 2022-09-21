@@ -20,10 +20,10 @@ class GoogleSearchConsoleBaseTest(unittest.TestCase):
     INCREMENTAL = "INCREMENTAL"
     FULL_TABLE = "FULL_TABLE"
     START_DATE_FORMAT = "%Y-%m-%dT00:00:00Z"
-    DATETIME_FMT = [
+    DATETIME_FMT = {
         "%Y-%m-%dT%H:%M:%SZ",
         "%Y-%m-%dT%H:%M:%S.000000Z"
-    ]
+    }
     start_date = dt.utcnow()-timedelta(days=14)
     properties = {
         "client_id": "TAP_GOOGLE_SEARCH_CONSOLE_CLIENT_ID",
