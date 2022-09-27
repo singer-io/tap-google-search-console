@@ -95,7 +95,7 @@ class GoogleSearchConsoleInterruptedSyncTest(GoogleSearchConsoleBaseTest):
                 # Expected values
                 expected_replication_method = expected_replication_methods[stream]
 
-                # Collect information for assertions from syncs 1 & 2 base on expected values
+                # Collect information for assertions from syncs 1 & 2 based on expected values
                 first_sync_count = first_sync_record_count.get(stream, 0)
                 second_sync_count = second_sync_record_count.get(stream, 0)
                 second_sync_messages = [record.get('data') for record in
