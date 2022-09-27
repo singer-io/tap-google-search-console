@@ -28,8 +28,7 @@ class GoogleSearchConsoleInterruptedSyncTest(GoogleSearchConsoleBaseTest):
  
         # Excluding the custom report stream to decrease the CCI job duration
         # Currently custom report stream takes more than an hour to sync data for past 14 days
-        exclude_streams = {'performance_report_custom'} 
-        expected_streams = self.expected_streams() - exclude_streams
+        expected_streams = self.expected_streams() - self.exclude_streams()
         expected_replication_keys = self.expected_replication_keys()
         expected_replication_methods = self.expected_replication_method()
         site_url = self.get_properties().get('site_urls', []).split(',')[0]
@@ -42,7 +41,7 @@ class GoogleSearchConsoleInterruptedSyncTest(GoogleSearchConsoleBaseTest):
         # Run in check mode
         found_catalogs = self.run_and_verify_check_mode(conn_id)
 
-        # table and field selection
+        # Table and field selection
         catalog_entries = [catalog for catalog in found_catalogs if catalog.get('tap_stream_id') in expected_streams]
 
         self.perform_and_verify_table_and_field_selection(conn_id, catalog_entries)
@@ -93,10 +92,10 @@ class GoogleSearchConsoleInterruptedSyncTest(GoogleSearchConsoleBaseTest):
         for stream in expected_streams:
             with self.subTest(stream=stream):
 
-                # expected values
+                # Expected values
                 expected_replication_method = expected_replication_methods[stream]
 
-                # collect information for assertions from syncs 1 & 2 base on expected values
+                # Collect information for assertions from syncs 1 & 2 base on expected values
                 first_sync_count = first_sync_record_count.get(stream, 0)
                 second_sync_count = second_sync_record_count.get(stream, 0)
                 second_sync_messages = [record.get('data') for record in
@@ -107,11 +106,8 @@ class GoogleSearchConsoleInterruptedSyncTest(GoogleSearchConsoleBaseTest):
 
                 if expected_replication_method == self.INCREMENTAL:
 
-                    # collect information specific to incremental streams from syncs 1 & 2
+                    # Collect information specific to incremental streams from syncs 1 & 2
                     replication_key = next(iter(expected_replication_keys[stream]))
-
-                    if stream == 'performance_report_page':
-                        replication_key = 'date'
 
                     interrupted_bookmark_value = interrupted_sync_states['bookmarks'][stream]
                     if stream in completed_streams:

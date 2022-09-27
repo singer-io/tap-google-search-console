@@ -19,8 +19,7 @@ class TestGoogleSearchConsoleAllFields(GoogleSearchConsoleBaseTest):
         """
         # Excluding the custom report stream to decrease the CCI job duration
         # Currently custom report stream takes more than an hour to sync data for past 14 days
-        exclude_streams = {'performance_report_custom'}
-        expected_streams = self.expected_streams() - exclude_streams
+        expected_streams = self.expected_streams() - self.exclude_streams()
 
         # Instantiate connection
         conn_id = connections.ensure_connection(self)

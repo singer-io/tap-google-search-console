@@ -102,7 +102,7 @@ class GoogleSearchConsoleBaseTest(unittest.TestCase):
             "performance_report_page": {
                 self.PRIMARY_KEYS: {"site_url", "search_type", "date", "page"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {"page", "date"}
+                self.REPLICATION_KEYS: {"date"}
             },
             "performance_report_query": {
                 self.PRIMARY_KEYS: {"site_url", "search_type", "date", "query"},
@@ -114,6 +114,10 @@ class GoogleSearchConsoleBaseTest(unittest.TestCase):
     def expected_streams(self):
         """A set of expected stream names"""
         return set(self.expected_metadata().keys())
+
+    @staticmethod
+    def exclude_streams():
+        return {'performance_report_custom'}
 
     def expected_primary_keys(self):
         """return a dictionary with key of table name and value as a set of primary key fields"""

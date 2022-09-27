@@ -1,6 +1,5 @@
 from datetime import timedelta
 from datetime import datetime as dt
-import site
 from tap_tester import connections, menagerie, runner
 from base import GoogleSearchConsoleBaseTest
 from tap_tester.logger import LOGGER
@@ -33,8 +32,7 @@ class GoogleSearchConsoleBookMarkTest(GoogleSearchConsoleBaseTest):
 
         # Excluding the custom report stream to decrease the CCI job duration
         # Currently custom report stream takes more than an hour to sync data for past 14 days
-        exclude_streams = {'performance_report_custom'}
-        expected_streams = self.expected_streams() - exclude_streams
+        expected_streams = self.expected_streams() - self.exclude_streams()
         expected_replication_keys = self.expected_replication_keys()
         expected_replication_methods = self.expected_replication_method()
         site_url = self.get_properties().get('site_urls', []).split(',')[0]
@@ -47,7 +45,7 @@ class GoogleSearchConsoleBookMarkTest(GoogleSearchConsoleBaseTest):
         # Run in check mode
         found_catalogs = self.run_and_verify_check_mode(conn_id)
 
-        # table and field selection
+        # Table and field selection
         catalog_entries = [catalog for catalog in found_catalogs
                            if catalog.get('tap_stream_id') in expected_streams]
 
@@ -113,9 +111,6 @@ class GoogleSearchConsoleBookMarkTest(GoogleSearchConsoleBaseTest):
 
                     # Collect information specific to incremental streams from syncs 1 & 2
                     replication_key = next(iter(expected_replication_keys[stream]))
-
-                    if stream == 'performance_report_page':
-                        replication_key = 'date'
 
                     simulated_bookmark_value = new_states['bookmarks'][stream]
 

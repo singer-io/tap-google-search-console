@@ -1,7 +1,12 @@
 from base import GoogleSearchConsoleBaseTest
 from tap_tester import runner, connections
 
+
 class GoogleConsoleAutomaticFields(GoogleSearchConsoleBaseTest):
+    """
+    Verify that for each stream you can get multiple pages of data
+    when no fields are selected and only the automatic fields are replicated.
+    """
     
     @staticmethod
     def name():
@@ -9,13 +14,9 @@ class GoogleConsoleAutomaticFields(GoogleSearchConsoleBaseTest):
     
     def test_run(self):
         """
-        Verify that for each stream you can get multiple pages of data
-        when no fields are selected and only the automatic fields are replicated.
-
-        PREREQUISITE
-        For EACH stream add enough data that you surpass the limit of a single
-        fetch of data.  For instance if you have a limit of 250 records ensure
-        that 251 (or more) records have been posted for that stream.
+        • Verify we can deselect all fields except when inclusion=automatic, which is handled by base.py methods
+        • Verify that only the automatic fields are sent to the target.
+        • Verify that all replicated records have unique primary key values.
         """
 
         expected_streams = self.expected_streams()
