@@ -102,7 +102,7 @@ class GoogleSearchConsoleBaseTest(unittest.TestCase):
             "performance_report_page": {
                 self.PRIMARY_KEYS: {"site_url", "search_type", "date", "page"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {"date"}
+                self.REPLICATION_KEYS: {"page", "date"}
             },
             "performance_report_query": {
                 self.PRIMARY_KEYS: {"site_url", "search_type", "date", "query"},

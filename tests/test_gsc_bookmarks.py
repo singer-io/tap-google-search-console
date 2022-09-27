@@ -110,7 +110,9 @@ class GoogleSearchConsoleBookMarkTest(GoogleSearchConsoleBaseTest):
                 if expected_replication_method == self.INCREMENTAL:
 
                     # Collect information specific to incremental streams from syncs 1 & 2
-                    replication_key = next(iter(expected_replication_keys[stream]))
+                    # Set date as replication key for performance_report_page since only date is being used for filtering
+                    replication_key = next(iter(expected_replication_keys[stream])) \
+                        if stream != 'performance_report_page' else 'date'
 
                     simulated_bookmark_value = new_states['bookmarks'][stream]
 
