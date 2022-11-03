@@ -6,7 +6,7 @@ from .streams import STREAMS
 LOGGER = singer.get_logger()
 
 
-def sync(config :dict, state :dict, catalog):
+def sync(config:dict, state :dict, catalog):
     """Sync data from tap source"""
     if state is None:
         state = {}
@@ -31,7 +31,7 @@ def sync(config :dict, state :dict, catalog):
 
             singer.write_schema(tap_stream_id, stream_schema, stream_obj.key_properties, stream.replication_key)
 
-            state = stream_obj.sync(state=state, stream_schema, stream_metadata,transformer)
+            state = stream_obj.sync(state, stream_schema, stream_metadata, transformer)
             singer.write_state(state)
 
     state = singer.set_currently_syncing(state, None)

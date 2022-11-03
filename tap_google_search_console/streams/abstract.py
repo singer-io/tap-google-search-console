@@ -1,6 +1,8 @@
 from abc import abstractmethod, ABC
-from singer.metadata import get_standard_metadata, write
+from singer.metadata import get_standard_metadata
 from singer.logger import get_logger
+from typing import Dict, Tuple
+from singer import Transformer
 
 LOGGER = get_logger()
 
@@ -33,14 +35,14 @@ class BaseStream(ABC):
 
     @property
     @abstractmethod
-    def valid_replication_keys(self) -> tuple[str, str]:
+    def valid_replication_keys(self) -> Tuple[str, str]:
         """
         Defines the replication key for incremental sync mode of a stream
         """
 
     @property
     @abstractmethod
-    def key_properties(self) -> tuple[str, str]:
+    def key_properties(self) -> Tuple[str, str]:
         """
         List of key properties for stream
         """
@@ -59,16 +61,16 @@ class BaseStream(ABC):
         """
 
     @abstractmethod
-    def sync(self):
+    def sync(self, state: Dict, schema: Dict, stream_metadata: Dict, transformer: Transformer):
         """
-        TODO: Add Documentation
+
         """
 
     def __init__(self, client=None) -> None:
         self.client = client
 
     @classmethod
-    def get_metadata(cls, schema) -> dict[str, str]:
+    def get_metadata(cls, schema) -> Dict[str, str]:
         """
         Returns a `dict` for generating stream metadata
         """
@@ -92,11 +94,10 @@ class IncremetalStream(BaseStream):
     Base Class for Incremental Stream
     """
 
-
     replication_method = "INCREMENTAL"
     forced_replication_method = "INCREMENTAL"
 
-    def sync(self,state :dict,schema :dict,stream_metadata :dict,transformer):
+    def sync(self, state: Dict, schema: Dict, stream_metadata: Dict, transformer: Transformer):
         LOGGER.info("sync called from %s", self.__class__)
         return state
 
@@ -110,6 +111,6 @@ class FullTableStream(BaseStream):
     valid_replication_keys = None
     replication_key = None
 
-    def sync(self,state,schema,stream_metadata,transformer):
+    def sync(self, state: Dict, schema: Dict, stream_metadata: Dict, transformer: Transformer):
         LOGGER.info("sync called from %s", self.__class__)
         return state
