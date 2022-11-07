@@ -1,6 +1,7 @@
 from .abstract import FullTableStream
 from singer.logger import get_logger
-
+from typing import Iterator, Dict
+from tap_google_search_console.helpers import encode_and_format_url, transform_json
 LOGGER = get_logger()
 
 
@@ -13,12 +14,33 @@ class Sitemaps(FullTableStream):
     key_properties = ["site_url", "path", "last_submitted"]
 
     data_key = "sitemap"
-    path = ("sites/{}/sitemaps",)
+    path = "sites/{}/sitemaps"
 
     def __init__(self, client=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
         super().__init__(client)
 
-    def get_records(self):
+    def get_records(self) -> Iterator[Dict]:
+        """
+        Performs API calls to extract data for each site
+        """
         LOGGER.info("get records called from %s", self.__class__)
+        transformed_data = []
+        for site in self.get_site_url():
+            if site[:9] == 'sc-domain':
+                LOGGER.info(f'Skipping Site: {site}')
+                LOGGER.info('Sitemaps API does not support domain property urls at this time.')
+                continue
+            path = encode_and_format_url(site, self.path)
+            data = self.client.get(path)
+            transformed_data.extend(iter(transform_json(data, self.tap_stream_id, site=site,
+                                                        path=self.data_key).get(self.data_key, [])))
+        yield from transformed_data
+
+
+
+
+
+
+
 

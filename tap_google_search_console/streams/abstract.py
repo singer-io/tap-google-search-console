@@ -2,7 +2,8 @@ from abc import abstractmethod, ABC
 from singer.metadata import get_standard_metadata
 from singer.logger import get_logger
 from typing import Dict, Tuple
-from singer import Transformer
+from singer import Transformer, metrics, write_record, utils
+
 LOGGER = get_logger()
 
 
@@ -74,18 +75,21 @@ class BaseStream(ABC):
         Returns a `dict` for generating stream metadata
         """
         metadata = get_standard_metadata(**{
-                "schema": schema,
-                "key_properties": cls.key_properties,
-                "valid_replication_keys": cls.valid_replication_keys,
-                "replication_method": cls.replication_method
-                or cls.forced_replication_method,
-            }
-        )
+            "schema": schema,
+            "key_properties": cls.key_properties,
+            "valid_replication_keys": cls.valid_replication_keys,
+            "replication_method": cls.replication_method
+                                  or cls.forced_replication_method,
+        }
+                                         )
         if cls.replication_key is not None:
             meta = metadata[0]["metadata"]
-            meta.update({"replication-key":cls.replication_key})
+            meta.update({"replication-key": cls.replication_key})
             metadata[0]["metadata"] = meta
         return metadata
+
+    def get_site_url(self):
+        return getattr(self.client, '__site_urls').replace(" ", "").split(",")
 
 
 class IncremetalStream(BaseStream):
@@ -95,6 +99,7 @@ class IncremetalStream(BaseStream):
 
     replication_method = "INCREMENTAL"
     forced_replication_method = "INCREMENTAL"
+    api_method = "POST"
     sub_types = ["web", "image", "video"]
 
     def sync(self, state: Dict, schema: Dict, stream_metadata: Dict, transformer: Transformer):
@@ -109,9 +114,16 @@ class FullTableStream(BaseStream):
 
     replication_method = "FULL_TABLE"
     forced_replication_method = "FULL_TABLE"
+    api_method = "GET"
     valid_replication_keys = None
     replication_key = None
 
     def sync(self, state: Dict, schema: Dict, stream_metadata: Dict, transformer: Transformer):
         LOGGER.info("sync called from %s", self.__class__)
+        with metrics.record_counter(self.tap_stream_id) as counter:
+            for record in self.get_records():
+                with Transformer() as transformer:
+                    transformed_record = transformer.transform(record, schema, stream_metadata)
+                    write_record(self.tap_stream_id, transformed_record, time_extracted=utils.now())
+                    counter.increment()
         return state
