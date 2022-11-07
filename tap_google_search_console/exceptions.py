@@ -139,6 +139,7 @@ ERROR_CODE_EXCEPTION_MAPPING = {
     }
 }
 
+
 def raise_for_error(response):
     # Forming a response message for raising custom exception
 

@@ -1,7 +1,9 @@
+import contextlib
 from unittest import mock
 import tap_google_search_console.client as client
 import unittest
 import requests
+
 
 class TestTimeoutValue(unittest.TestCase):
     """
@@ -24,7 +26,7 @@ class TestTimeoutValue(unittest.TestCase):
                                  config['refresh_token'],
                                  config['site_urls'],
                                  user_agent=config['user_agent'],
-                                 timeout_from_config=config.get('request_timeout'))
+                                 timeout=config.get('request_timeout'))
 
         # verify that timeout value is default as request timeout is not passed in config
         self.assertEquals(300, cl.request_timeout)
@@ -46,7 +48,7 @@ class TestTimeoutValue(unittest.TestCase):
                                  config['refresh_token'],
                                  config['site_urls'],
                                  user_agent=config['user_agent'],
-                                 timeout_from_config=config.get('request_timeout'))
+                                 timeout=config.get('request_timeout'))
 
         # verify that timeout value is same as the value passed in the config
         self.assertEquals(100.0, cl.request_timeout)
@@ -68,7 +70,7 @@ class TestTimeoutValue(unittest.TestCase):
                                  config['refresh_token'],
                                  config['site_urls'],
                                  user_agent=config['user_agent'],
-                                 timeout_from_config=config.get('request_timeout'))
+                                 timeout=config.get('request_timeout'))
 
         # verify that timeout value is same as the value passed in the config
         self.assertEquals(100.0, cl.request_timeout)
@@ -90,7 +92,7 @@ class TestTimeoutValue(unittest.TestCase):
                                  config['refresh_token'],
                                  config['site_urls'],
                                  user_agent=config['user_agent'],
-                                 timeout_from_config=config.get('request_timeout'))
+                                 timeout=config.get('request_timeout'))
 
         # verify that timeout value is default as request timeout is empty in the config
         self.assertEquals(300, cl.request_timeout)
@@ -112,7 +114,7 @@ class TestTimeoutValue(unittest.TestCase):
                                  config['refresh_token'],
                                  config['site_urls'],
                                  user_agent=config['user_agent'],
-                                 timeout_from_config=config.get('request_timeout'))
+                                 timeout=config.get('request_timeout'))
 
         # verify that timeout value is default as request timeout is zero in the config
         self.assertEquals(300, cl.request_timeout)
@@ -134,10 +136,11 @@ class TestTimeoutValue(unittest.TestCase):
                                  config['refresh_token'],
                                  config['site_urls'],
                                  user_agent=config['user_agent'],
-                                 timeout_from_config=config.get('request_timeout'))
+                                 timeout=config.get('request_timeout'))
 
         # verify that timeout value is default as request timeout is zero in the config
         self.assertEquals(300, cl.request_timeout)
+
 
 @mock.patch("time.sleep")
 @mock.patch("requests.Session.request")
@@ -147,7 +150,6 @@ class TestTimeoutBackoff(unittest.TestCase):
     """
 
     def test_timeout_error__get_access_token(self, mocked_request, mocked_sleep):
-
         # mock request and raise the 'Timeout' error
         mocked_request.side_effect = requests.Timeout
 
@@ -161,23 +163,19 @@ class TestTimeoutBackoff(unittest.TestCase):
         }
 
         # initialize 'GoogleClient'
-        try:
-            with client.GoogleClient(config['client_id'],
+        with contextlib.suppress(requests.Timeout):
+            cl = client.GoogleClient(config['client_id'],
                                      config['client_secret'],
                                      config['refresh_token'],
                                      config['site_urls'],
                                      user_agent=config['user_agent'],
-                                     timeout_from_config=config.get('request_timeout')) as cl:
-                pass
-
-        except requests.Timeout:
-            pass
+                                     timeout=config.get('request_timeout'))
+            cl.request("/path")
 
         # verify that we backoff for 5 times
         self.assertEquals(mocked_request.call_count, 5)
 
     def test_timeout_error__request(self, mocked_request, mocked_sleep):
-
         # mock request and raise the 'Timeout' error
         mocked_request.side_effect = requests.Timeout
 
@@ -196,16 +194,14 @@ class TestTimeoutBackoff(unittest.TestCase):
                                  config['refresh_token'],
                                  config['site_urls'],
                                  user_agent=config['user_agent'],
-                                 timeout_from_config=config.get('request_timeout'))
+                                 timeout=config.get('request_timeout'))
 
-        try:
+        with contextlib.suppress(requests.Timeout):
             # function call
             cl.request('GET')
-        except requests.Timeout:
-            pass
-
         # verify that we backoff for 5 times
         self.assertEquals(mocked_request.call_count, 5)
+
 
 @mock.patch("time.sleep")
 @mock.patch("requests.Session.request")
@@ -215,7 +211,6 @@ class TestConnectionErrorBackoff(unittest.TestCase):
     """
 
     def test_connection_error__get_access_token(self, mocked_request, mocked_sleep):
-
         # mock request and raise the 'ConnectionError' error
         mocked_request.side_effect = requests.ConnectionError
 
@@ -229,16 +224,13 @@ class TestConnectionErrorBackoff(unittest.TestCase):
         }
 
         # initialize 'GoogleClient'
-        try:
-            with client.GoogleClient(config['client_id'],
+        with contextlib.suppress(requests.ConnectionError):
+            cl = client.GoogleClient(config['client_id'],
                                      config['client_secret'],
                                      config['refresh_token'],
                                      config['site_urls'],
                                      user_agent=config['user_agent'],
-                                     timeout_from_config=config.get('request_timeout')) as cl:
-                pass
-        except requests.ConnectionError:
-            pass
-
-        # verify that we backoff for 5 times
-        self.assertEquals(mocked_request.call_count, 5)
+                                     timeout=config.get('request_timeout'))
+            cl.request('GET')
+        # verify that we backoff for 7 times
+        self.assertEquals(mocked_request.call_count, 7)

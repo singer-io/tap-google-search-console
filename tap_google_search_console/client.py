@@ -12,6 +12,7 @@ from .exceptions import (
     GoogleRateLimitExceeded,
 )
 import singer
+from datetime import timezone
 from singer import metrics
 from singer import utils
 
@@ -26,15 +27,15 @@ REQUEST_TIMEOUT = 300
 class GoogleClient:  # pylint: disable=too-many-instance-attributes
     def __init__(self, client_id: str, client_secret: str,
                  refresh_token: str, site_urls: str, user_agent=None,
-                 timeout=REQUEST_TIMEOUT, config :dict = None):
+                 timeout=REQUEST_TIMEOUT):
 
         self.__client_id, self.__client_secret, self.__refresh_token = (client_id, client_secret, refresh_token)
-        self.__site_urls, self.__user_agent,self.config = site_urls, user_agent,config
+        self.__site_urls, self.__user_agent = site_urls, user_agent
         self.__access_token, self.__expires, self.base_url = None, None, None
         self.__session = requests.Session()
 
         try:
-            self.request_timeout = float(timeout) if (timeout not in (None, 0, "0","0.0")) else REQUEST_TIMEOUT
+            self.request_timeout = float(timeout) if (timeout not in (None, 0, "0", "0.0")) else REQUEST_TIMEOUT
         except ValueError:
             self.request_timeout = REQUEST_TIMEOUT
 
@@ -44,24 +45,20 @@ class GoogleClient:  # pylint: disable=too-many-instance-attributes
         for _ in self.__site_urls.replace(" ", "").split(","):
             self.post(f"sites/{quote(_, safe='')}/searchAnalytics/query", data=body)
 
-    @backoff.on_exception(backoff.expo,(Timeout, ConnectionError),max_tries=5,factor=2)
+    @backoff.on_exception(backoff.expo, Server5xxError, max_tries=5, factor=2)
     def __enter__(self):
-        # TODO: Remove backoff decorator and update unit tests
         self.get_access_token()
         return self
-    
+
     def __exit__(self, exception_type, exception_value, traceback):
         self.__session.close()
 
-    @backoff.on_exception(backoff.expo, (Server5xxError), max_tries=5, factor=2)
     def get_access_token(self) -> None:
         """Performs authentication and the access token if expired"""
-        # TODO: Remove backoff decorator and update unit tests
 
-        if self.__access_token and self.__expires > datetime.utcnow():
+        if self.__access_token and self.__expires > datetime.now(timezone.utc):
             return
-        headers = {}
-        headers["User-Agent"] = self.__user_agent or ""
+        headers = {"User-Agent": self.__user_agent or ""}
         response = self.__session.post(
             url=GOOGLE_TOKEN_URI,
             headers=headers,
@@ -79,19 +76,21 @@ class GoogleClient:  # pylint: disable=too-many-instance-attributes
 
         data = response.json()
         self.__access_token = data["access_token"]
-        self.__expires = datetime.utcnow() + timedelta(seconds=data["expires_in"])
+        self.__expires = datetime.now(timezone.utc) + timedelta(seconds=data["expires_in"])
+
         LOGGER.info("Authorized, token expires = %s", self.__expires)
 
     # Backoff for 15 minutes in case of Quota Exceeded error
     @backoff.on_exception(backoff.constant, GoogleQuotaExceededError, max_tries=2, interval=900, jitter=None)
     # backoff for 5 times, with 10 seconds consistent interval
     @backoff.on_exception(backoff.constant, Timeout, max_tries=5, interval=10, jitter=None)
-    @backoff.on_exception(backoff.expo, (Server5xxError, ConnectionError, GoogleRateLimitExceeded), max_tries=7, factor=3)
+    @backoff.on_exception(backoff.expo, (Server5xxError, ConnectionError, GoogleRateLimitExceeded), max_tries=7,
+                          factor=3)
     @utils.ratelimit(1200, 60)
     def request(self, method: str, path: str = None, url: str = None, **kwargs) -> Any:
         """Wrapper method around request.sessions get/post method using the session object of the GoogleClient Object"""
 
-        #TODO: Consolidate multiple backoff decorators
+        # TODO: Consolidate multiple backoff decorators
         self.get_access_token()
         url = url or f"{self.base_url or BASE_URL}/{path}"
 

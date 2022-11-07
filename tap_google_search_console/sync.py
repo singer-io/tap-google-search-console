@@ -1,21 +1,16 @@
+from typing import Dict
 import singer
-from singer import Transformer, metadata
+from singer import Transformer, metadata, Catalog
 from .client import GoogleClient as Client
 from .streams import STREAMS
 
 LOGGER = singer.get_logger()
 
 
-def sync(config:dict, state :dict, catalog):
+def sync(client: Client, state: Dict, catalog: Catalog):
     """Sync data from tap source"""
     if state is None:
         state = {}
-    client = Client(
-                        config['client_id'],config['client_secret'],
-                        config['refresh_token'],config['site_urls'],
-                        config['user_agent'], config.get('request_timeout'),
-                        config=config
-                    )
 
     with Transformer() as transformer:
         for stream in catalog.get_selected_streams(state):

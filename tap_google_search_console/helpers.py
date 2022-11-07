@@ -1,7 +1,8 @@
 import os
 from enum import Enum
 
-def get_abs_path(path :str):
+
+def get_abs_path(path: str):
     """
     Returns absolute path for URL
     """

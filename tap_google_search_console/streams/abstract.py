@@ -3,7 +3,6 @@ from singer.metadata import get_standard_metadata
 from singer.logger import get_logger
 from typing import Dict, Tuple
 from singer import Transformer
-
 LOGGER = get_logger()
 
 
@@ -96,10 +95,12 @@ class IncremetalStream(BaseStream):
 
     replication_method = "INCREMENTAL"
     forced_replication_method = "INCREMENTAL"
+    sub_types = ["web", "image", "video"]
 
     def sync(self, state: Dict, schema: Dict, stream_metadata: Dict, transformer: Transformer):
         LOGGER.info("sync called from %s", self.__class__)
         return state
+
 
 class FullTableStream(BaseStream):
     """

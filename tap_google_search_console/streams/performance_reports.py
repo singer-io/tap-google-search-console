@@ -69,7 +69,6 @@ class PerformanceReportCountry(IncremetalStream):
         LOGGER.info("get records called from %s", self.__class__)
 
 
-
 class PerformanceReportDevices(IncremetalStream):
     """
     Class Representing the `performance_report_device` Stream
@@ -112,7 +111,6 @@ class PerformanceReportPage(IncremetalStream):
 
     def get_records(self):
         LOGGER.info("get records called from %s", self.__class__)
-
 
 
 class PerformanceReportQuery(IncremetalStream):

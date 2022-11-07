@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
-from singer import utils,get_logger
+from singer import utils, get_logger
 from tap_google_search_console.discover import discover
+from tap_google_search_console.client import GoogleClient
 from tap_google_search_console.sync import sync
 
 LOGGER = get_logger()
@@ -14,23 +15,24 @@ REQUIRED_CONFIG_KEYS = [
 ]
 
 
-
 @utils.handle_top_exception(LOGGER)
 def main():
     # Parse command line arguments
-    args = utils.parse_args(REQUIRED_CONFIG_KEYS)
+    parsed_args = utils.parse_args(REQUIRED_CONFIG_KEYS)
 
     # If discover flag was passed, run discovery mode and dump output to stdout
-    if args.discover:
-        catalog = discover(args.config)
-        catalog.dump()
-    # Otherwise run in sync mode
-    else:
-        if args.catalog:
-            catalog = args.catalog
+    with GoogleClient(parsed_args.config['client_id'],
+                      parsed_args.config['client_secret'],
+                      parsed_args.config['refresh_token'],
+                      parsed_args.config['site_urls'],
+                      parsed_args.config['user_agent'],
+                      parsed_args.config.get('request_timeout')) as client:
+        if parsed_args.discover:
+            catalog = discover(client)
+            catalog.dump()
         else:
-            catalog = discover(args.config)
-        sync(args.config, args.state, catalog)
+            catalog = parsed_args.catalog or discover(parsed_args.config)
+            sync(client, parsed_args.state, catalog)
 
 
 if __name__ == "__main__":
