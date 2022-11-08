@@ -4,8 +4,7 @@ from datetime import timedelta
 from datetime import datetime as dt
 import time
 
-import singer
-from tap_tester import connections, menagerie, runner
+from tap_tester import connections, menagerie, runner, LOGGER
 
 class GoogleSearchConsoleBaseTest(unittest.TestCase):
     """
@@ -25,7 +24,7 @@ class GoogleSearchConsoleBaseTest(unittest.TestCase):
         "%Y-%m-%dT%H:%M:%SZ",
         "%Y-%m-%dT%H:%M:%S.000000Z"
     }
-    start_date = ""
+    start_date = dt.utcnow()-timedelta(days=14)
     properties = {
         "client_id": "TAP_GOOGLE_SEARCH_CONSOLE_CLIENT_ID",
 	"site_urls": "TAP_GOOGLE_SEARCH_CONSOLE_SITE_URLS"
@@ -47,8 +46,9 @@ class GoogleSearchConsoleBaseTest(unittest.TestCase):
 
     def get_properties(self, original: bool = True):
         """Configuration properties required for the tap."""
+
         properties_dict = {
-            'start_date': dt.strftime(dt.utcnow()-timedelta(days=14), self.START_DATE_FORMAT),
+            'start_date': self.start_date if isinstance(self.start_date, str) else dt.strftime(self.start_date, self.START_DATE_FORMAT),
         }
         props = self.properties
         for prop in props:
@@ -57,7 +57,6 @@ class GoogleSearchConsoleBaseTest(unittest.TestCase):
         if original:
             return properties_dict
 
-        properties_dict["start_date"] = self.start_date
         return properties_dict
 
     def get_credentials(self):
@@ -103,7 +102,7 @@ class GoogleSearchConsoleBaseTest(unittest.TestCase):
             "performance_report_page": {
                 self.PRIMARY_KEYS: {"site_url", "search_type", "date", "page"},
                 self.REPLICATION_METHOD: self.INCREMENTAL,
-                self.REPLICATION_KEYS: {"date", "page"}
+                self.REPLICATION_KEYS: {"page", "date"}
             },
             "performance_report_query": {
                 self.PRIMARY_KEYS: {"site_url", "search_type", "date", "query"},
@@ -115,6 +114,10 @@ class GoogleSearchConsoleBaseTest(unittest.TestCase):
     def expected_streams(self):
         """A set of expected stream names"""
         return set(self.expected_metadata().keys())
+
+    @staticmethod
+    def exclude_streams():
+        return {'performance_report_custom'}
 
     def expected_primary_keys(self):
         """return a dictionary with key of table name and value as a set of primary key fields"""
@@ -177,9 +180,8 @@ class GoogleSearchConsoleBaseTest(unittest.TestCase):
         self.assertGreater(len(found_catalogs), 0, msg="unable to locate schemas for connection {}".format(conn_id))
 
         found_catalog_names = set(map(lambda c: c['stream_name'], found_catalogs))
-        print(found_catalog_names)
         self.assertSetEqual(self.expected_streams(), found_catalog_names, msg="discovered schemas do not match")
-        print("discovered schemas are OK")
+        LOGGER.info("discovered schemas are OK")
 
         return found_catalogs
 
@@ -203,7 +205,7 @@ class GoogleSearchConsoleBaseTest(unittest.TestCase):
             sum(sync_record_count.values()), 0,
             msg="failed to replicate any data: {}".format(sync_record_count)
         )
-        print("total replicated row count: {}".format(sum(sync_record_count.values())))
+        LOGGER.info("total replicated row count: %s", sum(sync_record_count.values()))
 
         return sync_record_count
 
@@ -232,7 +234,7 @@ class GoogleSearchConsoleBaseTest(unittest.TestCase):
 
             # Verify all testable streams are selected
             selected = catalog_entry.get('annotated-schema').get('selected')
-            print("Validating selection on {}: {}".format(cat['stream_name'], selected))
+            LOGGER.info("Validating selection on %s: %s", cat['stream_name'], selected)
             if cat['stream_name'] not in expected_selected:
                 self.assertFalse(selected, msg="Stream selected, but not testable.")
                 continue # Skip remaining assertions if we aren't selecting this stream
@@ -242,8 +244,7 @@ class GoogleSearchConsoleBaseTest(unittest.TestCase):
                 # Verify all fields within each selected stream are selected
                 for field, field_props in catalog_entry.get('annotated-schema').get('properties').items():
                     field_selected = field_props.get('selected')
-                    print("\tValidating selection on {}.{}: {}".format(
-                        cat['stream_name'], field, field_selected))
+                    LOGGER.info("\tValidating selection on %s.%s: %s", cat['stream_name'], field, field_selected)
                     self.assertTrue(field_selected, msg="Field not selected.")
             else:
                 # Verify only automatic fields are selected

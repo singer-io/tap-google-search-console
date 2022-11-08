@@ -9,7 +9,7 @@ class PaginationTest(GoogleSearchConsoleBaseTest):
         return "tap_tester_google_search_console_pagination_test"
 
     def test_run(self):
-        # page size for "performance_report_custom"
+        # Page size for "performance_report_custom"
         page_size = 10000
         conn_id = connections.ensure_connection(self)
 
@@ -17,7 +17,7 @@ class PaginationTest(GoogleSearchConsoleBaseTest):
         expected_streams = ["performance_report_page"]
         found_catalogs = self.run_and_verify_check_mode(conn_id)
 
-        # table and field selection
+        # Table and field selection
         test_catalogs = [catalog for catalog in found_catalogs
                          if catalog.get('stream_name') in expected_streams]
 
@@ -29,17 +29,17 @@ class PaginationTest(GoogleSearchConsoleBaseTest):
 
         for stream in expected_streams:
             with self.subTest(stream=stream):
-                # expected values
+                # Expected values
                 expected_primary_keys = self.expected_primary_keys()[stream]
 
-                # collect information for assertions from syncs 1 & 2 base on expected values
+                # Collect information for assertions from syncs 1 & 2 base on expected values
                 record_count_sync = record_count_by_stream.get(stream, 0)
                 primary_keys_list = [tuple(message.get('data').get(expected_pk)
                                            for expected_pk in expected_primary_keys)
                                      for message in synced_records.get(stream).get('messages')
                                      if message.get('action') == 'upsert']
 
-                # verify records are more than page size so multiple page is working
+                # Verify records are more than page size so multiple page is working
                 self.assertGreater(record_count_sync, page_size)
 
                 primary_keys_list_1 = primary_keys_list[:page_size]
