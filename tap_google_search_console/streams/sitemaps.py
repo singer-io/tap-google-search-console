@@ -16,9 +16,9 @@ class Sitemaps(FullTableStream):
     data_key = "sitemap"
     path = "sites/{}/sitemaps"
 
-    def __init__(self, client=None) -> None:
+    def __init__(self, client=None, config=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client)
+        super().__init__(client, config)
 
     def get_records(self) -> Iterator[Dict]:
         """
@@ -33,6 +33,7 @@ class Sitemaps(FullTableStream):
                 continue
             path = encode_and_format_url(site, self.path)
             data = self.client.get(path)
+            LOGGER.info(data)
             transformed_data.extend(iter(transform_json(data, self.tap_stream_id, site=site,
                                                         path=self.data_key).get(self.data_key, [])))
         yield from transformed_data

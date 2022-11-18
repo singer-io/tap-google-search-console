@@ -17,9 +17,9 @@ class Sites(FullTableStream):
     data_key = "site_entry"
     path = "sites/{}"
 
-    def __init__(self, client=None) -> None:
+    def __init__(self, client=None, config=None) -> None:
         # LOGGER.info("invoked %s", self.__class__) ss
-        super().__init__(client)
+        super().__init__(client, config)
 
     def get_records(self) -> Iterator[Dict]:
         """
@@ -29,6 +29,7 @@ class Sites(FullTableStream):
         for site in self.get_site_url():
             path = encode_and_format_url(site, self.path)
             data = self.client.get(path)
+            LOGGER.info(data)
             records.append(data)
         data = {self.data_key: records}
         # transforms data by converting camelCase fields to snake_case fields

@@ -95,6 +95,7 @@ class GoogleClient:  # pylint: disable=too-many-instance-attributes
         url = url or f"{self.base_url or BASE_URL}/{path}"
 
         endpoint, kwargs["headers"] = kwargs.get("endpoint", None), kwargs.get("headers", {})
+        kwargs.pop("endpoint", None)
 
         kwargs["headers"]["Authorization"] = f"Bearer {self.__access_token}"
         if self.__user_agent:

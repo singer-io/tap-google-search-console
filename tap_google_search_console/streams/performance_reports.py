@@ -1,10 +1,12 @@
 from singer.logger import get_logger
-from .abstract import IncremetalStream
+
+from .abstract import IncrementalTableStream
+from typing import Dict, List
 
 LOGGER = get_logger()
 
 
-class PerformanceReportCustom(IncremetalStream):
+class PerformanceReportCustom(IncrementalTableStream):
     """
     Class Representing the `performance_report_custom` Stream
     """
@@ -14,18 +16,16 @@ class PerformanceReportCustom(IncremetalStream):
     replication_key = "date"
     valid_replication_keys = ("date",)
 
-    data_key = "rows"
+    body_params = {'aggregationType': 'auto'}
     path = "sites/{}/searchAnalytics/query"
+    dimension_list = ['date', 'country', 'device', 'page', 'query']
 
-    def __init__(self, client=None) -> None:
+    def __init__(self, client=None, config=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client)
-
-    def get_records(self):
-        LOGGER.info("get records called from %s", self.__class__)
+        super().__init__(client, config)
 
 
-class PerformanceReportDate(IncremetalStream):
+class PerformanceReportDate(IncrementalTableStream):
     """
     Class Representing the `performance_report_date` Stream
     """
@@ -33,21 +33,17 @@ class PerformanceReportDate(IncremetalStream):
     tap_stream_id = "performance_report_date"
     key_properties = ["site_url", "search_type", "date"]
     replication_key = "date"
-
     valid_replication_keys = ("date",)
 
-    data_key = "rows"
+    body_params = {'aggregationType': 'byProperty', 'dimensions': ['date']}
     path = "sites/{}/searchAnalytics/query"
 
-    def __init__(self, client=None) -> None:
+    def __init__(self, client=None, config=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client)
-
-    def get_records(self):
-        LOGGER.info("get records called from %s", self.__class__)
+        super().__init__(client, config)
 
 
-class PerformanceReportCountry(IncremetalStream):
+class PerformanceReportCountry(IncrementalTableStream):
     """
     Class Representing the `performance_report_country` Stream
     """
@@ -55,21 +51,17 @@ class PerformanceReportCountry(IncremetalStream):
     tap_stream_id = "performance_report_country"
     key_properties = ["site_url", "search_type", "date", "country"]
     replication_key = "date"
+    valid_replication_keys = ("date",)
 
-    valid_replication_keys = ["date"]
-
-    data_key = "rows"
+    body_params = {'aggregationType': 'byProperty', 'dimensions': ['date', 'country']}
     path = "sites/{}/searchAnalytics/query"
 
-    def __init__(self, client=None) -> None:
+    def __init__(self, client=None, config=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client)
-
-    def get_records(self):
-        LOGGER.info("get records called from %s", self.__class__)
+        super().__init__(client, config)
 
 
-class PerformanceReportDevices(IncremetalStream):
+class PerformanceReportDevices(IncrementalTableStream):
     """
     Class Representing the `performance_report_device` Stream
     """
@@ -77,43 +69,35 @@ class PerformanceReportDevices(IncremetalStream):
     tap_stream_id = "performance_report_device"
     key_properties = ["site_url", "search_type", "date", "device"]
     replication_key = "date"
+    valid_replication_keys = ("date",)
 
-    valid_replication_keys = ["date"]
-
-    data_key = "rows"
+    body_params = {'aggregationType': 'byProperty', 'dimensions': ['date', 'device']}
     path = "sites/{}/searchAnalytics/query"
 
-    def __init__(self, client=None) -> None:
+    def __init__(self, client=None, config=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client)
-
-    def get_records(self):
-        LOGGER.info("get records called from %s", self.__class__)
+        super().__init__(client, config)
 
 
-class PerformanceReportPage(IncremetalStream):
+class PerformanceReportPage(IncrementalTableStream):
     """
     Class Representing the `performance_report_page` Stream
     """
 
     tap_stream_id = "performance_report_page"
-    key_properties =["site_url", "search_type", "date", "page"]
+    key_properties = ["site_url", "search_type", "date", "page"]
     replication_key = "date"
+    valid_replication_keys = ("date", "page")
 
-    valid_replication_keys = ("date","page")
-
-    data_key = "rows"
+    body_params = {'aggregationType': 'byPage', 'dimensions': ['date', 'page']}
     path = "sites/{}/searchAnalytics/query"
 
-    def __init__(self, client=None) -> None:
+    def __init__(self, client=None, config=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client)
-
-    def get_records(self):
-        LOGGER.info("get records called from %s", self.__class__)
+        super().__init__(client, config)
 
 
-class PerformanceReportQuery(IncremetalStream):
+class PerformanceReportQuery(IncrementalTableStream):
     """
     Class Representing the `performance_report_query` Stream
     """
@@ -121,16 +105,11 @@ class PerformanceReportQuery(IncremetalStream):
     tap_stream_id = "performance_report_query"
     key_properties = ["site_url", "search_type", "date", "query"]
     replication_key = "date"
+    valid_replication_keys = ("date",)
 
-    valid_replication_keys = ["date"]
-
-    data_key = "rows"
+    body_params = {'aggregationType': 'byProperty', 'dimensions': ['date', 'query']}
     path = "sites/{}/searchAnalytics/query"
 
-    def __init__(self, client=None) -> None:
+    def __init__(self, client=None, config=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client)
-
-    def get_records(self):
-        LOGGER.info("get records called from %s", self.__class__)
-
+        super().__init__(client, config)

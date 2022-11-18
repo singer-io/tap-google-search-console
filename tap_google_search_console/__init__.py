@@ -32,7 +32,7 @@ def main():
             catalog.dump()
         else:
             catalog = parsed_args.catalog or discover(parsed_args.config)
-            sync(client, parsed_args.state, catalog)
+            sync(client, parsed_args.config, parsed_args.state, catalog)
 
 
 if __name__ == "__main__":
