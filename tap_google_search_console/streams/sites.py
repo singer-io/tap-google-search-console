@@ -29,7 +29,6 @@ class Sites(FullTableStream):
         for site in self.get_site_url():
             path = encode_and_format_url(site, self.path)
             data = self.client.get(path)
-            LOGGER.info(data)
             records.append(data)
         data = {self.data_key: records}
         # transforms data by converting camelCase fields to snake_case fields

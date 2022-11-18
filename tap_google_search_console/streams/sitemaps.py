@@ -33,7 +33,6 @@ class Sitemaps(FullTableStream):
                 continue
             path = encode_and_format_url(site, self.path)
             data = self.client.get(path)
-            LOGGER.info(data)
             transformed_data.extend(iter(transform_json(data, self.tap_stream_id, site=site,
                                                         path=self.data_key).get(self.data_key, [])))
         yield from transformed_data
