@@ -98,7 +98,7 @@ ERROR_CODE_EXCEPTION_MAPPING = {
     402: {
         "raise_exception": GooglePaymentRequiredError,
         "message": "The requested operation requires more resources than the quota allows. Payment is required to "
-                   "complete the operation. "
+                   "complete the operation."
     },
     403: {
         "raise_exception": GoogleForbiddenError,
@@ -115,7 +115,7 @@ ERROR_CODE_EXCEPTION_MAPPING = {
     409: {
         "raise_exception": GoogleConflictError,
         "message": "The API request cannot be completed because the requested operation would conflict with an "
-                   "existing item. "
+                   "existing item."
     },
     410: {
         "raise_exception": GoogleGoneError,
