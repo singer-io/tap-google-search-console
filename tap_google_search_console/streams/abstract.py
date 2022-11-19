@@ -98,10 +98,10 @@ class IncrementalTableStream(BaseStream, ABC):
     replication_method = "INCREMENTAL"
     forced_replication_method = "INCREMENTAL"
     pagination = "body"
-    sub_types = ["discover", "news", "googleNews"]
+    sub_types = ["web", "image", "video", "discover", "news", "googleNews"]
     body_params = {}
     row_limit = 10000
-    path = ""
+    path = "sites/{}/searchAnalytics/query"
     dimension_list = []
     data_key = "rows"
 

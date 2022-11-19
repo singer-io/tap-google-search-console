@@ -17,7 +17,6 @@ class PerformanceReportCustom(IncrementalTableStream):
     valid_replication_keys = ("date",)
 
     body_params = {'aggregationType': 'auto'}
-    path = "sites/{}/searchAnalytics/query"
     dimension_list = ['date', 'country', 'device', 'page', 'query']
 
     def __init__(self, client=None, config=None) -> None:
@@ -36,7 +35,6 @@ class PerformanceReportDate(IncrementalTableStream):
     valid_replication_keys = ("date",)
 
     body_params = {'aggregationType': 'byProperty', 'dimensions': ['date']}
-    path = "sites/{}/searchAnalytics/query"
 
     def __init__(self, client=None, config=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
@@ -54,7 +52,6 @@ class PerformanceReportCountry(IncrementalTableStream):
     valid_replication_keys = ("date",)
 
     body_params = {'aggregationType': 'byProperty', 'dimensions': ['date', 'country']}
-    path = "sites/{}/searchAnalytics/query"
 
     def __init__(self, client=None, config=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
@@ -72,7 +69,6 @@ class PerformanceReportDevices(IncrementalTableStream):
     valid_replication_keys = ("date",)
 
     body_params = {'aggregationType': 'byProperty', 'dimensions': ['date', 'device']}
-    path = "sites/{}/searchAnalytics/query"
 
     def __init__(self, client=None, config=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
@@ -90,7 +86,6 @@ class PerformanceReportPage(IncrementalTableStream):
     valid_replication_keys = ("date", "page")
 
     body_params = {'aggregationType': 'byPage', 'dimensions': ['date', 'page']}
-    path = "sites/{}/searchAnalytics/query"
 
     def __init__(self, client=None, config=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
@@ -108,7 +103,6 @@ class PerformanceReportQuery(IncrementalTableStream):
     valid_replication_keys = ("date",)
 
     body_params = {'aggregationType': 'byProperty', 'dimensions': ['date', 'query']}
-    path = "sites/{}/searchAnalytics/query"
 
     def __init__(self, client=None, config=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
