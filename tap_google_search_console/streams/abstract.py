@@ -98,7 +98,7 @@ class IncrementalTableStream(BaseStream, ABC):
     replication_method = "INCREMENTAL"
     forced_replication_method = "INCREMENTAL"
     pagination = "body"
-    sub_types = ["web", "image", "video", "discover", "news", "googleNews"]
+    sub_types = ["web", "image", "video"]
     body_params = {}
     row_limit = 10000
     path = "sites/{}/searchAnalytics/query"
@@ -189,16 +189,6 @@ class IncrementalTableStream(BaseStream, ABC):
         """
         if self.tap_stream_id == "performance_report_custom":
             self.body_params["dimensions"] = self.set_dimensions_in_payload(stream_metadata)
-            # Skip the extraction for type discover
-            # Requests for Discover cannot be grouped by device
-            if sub_type == "discover" and "device" in self.body_params["dimensions"]:
-                self.body_params["dimensions"].remove("device")
-        if sub_type in ["discover", "googleNews"]:
-            self.body_params["aggregationType"] = "auto"
-            # Remove query from dimension list if the sub_type is either discover or googleNews
-            # query seems to be an invalid argument while grouping data for discover and googleNews
-            if self.tap_stream_id == "performance_report_query" and "query" in self.body_params["dimensions"]:
-                self.body_params["dimensions"].remove("query")
 
         return {"type": sub_type, "startDate": start_date, "endDate": end_date, **self.body_params}
 
@@ -321,20 +311,6 @@ class IncrementalTableStream(BaseStream, ABC):
         """
         for sub_type in self.sub_types:
             LOGGER.info(f"Starting Sync for Stream {self.tap_stream_id}, Site {site_url}, Type {sub_type}")
-            if sub_type == "discover" and self.tap_stream_id == "performance_report_device":
-                # Skip the process for type discover and stream performance_report_device
-                # Requests for Discover cannot be grouped by device
-                LOGGER.info(f"Cannot extract data for Type {sub_type}, Stream {self.tap_stream_id} "
-                            f"Since Requests for Discover cannot be grouped by device")
-                continue
-
-            if sub_type in ["discover", "googleNews"] and self.tap_stream_id == "performance_report_query":
-                # Skips the process if the sub_type is either discover or googleNews and stream is
-                # performance_report_query
-                # query seems to be an invalid argument while grouping data for discover and googleNews
-                LOGGER.info(f"Cannot extract data  for Type {sub_type}, Stream {self.tap_stream_id} "
-                            f"Since query is an invalid argument")
-                continue
             self.records_extracted = 0
             state = self.get_records_for_sub_type(site_url, sub_type, state, schema, stream_metadata)
             LOGGER.info(f"Total records extracted for Stream: {self.tap_stream_id}, Site: {site_url}, Type: {sub_type}:"
