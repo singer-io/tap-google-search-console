@@ -31,7 +31,7 @@ def main():
             catalog = discover(client)
             catalog.dump()
         else:
-            catalog = parsed_args.catalog or discover(parsed_args.config)
+            catalog = parsed_args.catalog or discover(client)
             sync(client, parsed_args.config, parsed_args.state, catalog)
 
 

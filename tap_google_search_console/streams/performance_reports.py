@@ -13,7 +13,6 @@ class PerformanceReportCustom(IncrementalTableStream):
 
     tap_stream_id = "performance_report_custom"
     key_properties = ["site_url", "search_type", "date", "dimensions_hash_key"]
-    replication_key = "date"
     valid_replication_keys = ("date",)
 
     body_params = {'aggregationType': 'auto'}
@@ -31,7 +30,6 @@ class PerformanceReportDate(IncrementalTableStream):
 
     tap_stream_id = "performance_report_date"
     key_properties = ["site_url", "search_type", "date"]
-    replication_key = "date"
     valid_replication_keys = ("date",)
 
     body_params = {'aggregationType': 'byProperty', 'dimensions': ['date']}
@@ -48,7 +46,6 @@ class PerformanceReportCountry(IncrementalTableStream):
 
     tap_stream_id = "performance_report_country"
     key_properties = ["site_url", "search_type", "date", "country"]
-    replication_key = "date"
     valid_replication_keys = ("date",)
 
     body_params = {'aggregationType': 'byProperty', 'dimensions': ['date', 'country']}
@@ -65,7 +62,6 @@ class PerformanceReportDevices(IncrementalTableStream):
 
     tap_stream_id = "performance_report_device"
     key_properties = ["site_url", "search_type", "date", "device"]
-    replication_key = "date"
     valid_replication_keys = ("date",)
 
     body_params = {'aggregationType': 'byProperty', 'dimensions': ['date', 'device']}
@@ -82,7 +78,6 @@ class PerformanceReportPage(IncrementalTableStream):
 
     tap_stream_id = "performance_report_page"
     key_properties = ["site_url", "search_type", "date", "page"]
-    replication_key = "date"
     valid_replication_keys = ("date", "page")
 
     body_params = {'aggregationType': 'byPage', 'dimensions': ['date', 'page']}
@@ -99,7 +94,6 @@ class PerformanceReportQuery(IncrementalTableStream):
 
     tap_stream_id = "performance_report_query"
     key_properties = ["site_url", "search_type", "date", "query"]
-    replication_key = "date"
     valid_replication_keys = ("date",)
 
     body_params = {'aggregationType': 'byProperty', 'dimensions': ['date', 'query']}

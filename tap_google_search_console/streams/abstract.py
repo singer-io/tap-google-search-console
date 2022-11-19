@@ -80,10 +80,7 @@ class BaseStream(ABC):
             "replication_method": cls.replication_method or cls.forced_replication_method,
         }
                                          )
-        if cls.replication_key is not None:
-            meta = metadata[0]["metadata"]
-            meta.update({"replication-key": cls.replication_key})
-            metadata[0]["metadata"] = meta
+
         return metadata
 
     def get_site_url(self):
@@ -97,6 +94,7 @@ class IncrementalTableStream(BaseStream, ABC):
 
     replication_method = "INCREMENTAL"
     forced_replication_method = "INCREMENTAL"
+    replication_key = "date"
     pagination = "body"
     sub_types = ["web", "image", "video"]
     body_params = {}
