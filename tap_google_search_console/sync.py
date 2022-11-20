@@ -25,8 +25,7 @@ def sync(client: Client, config: Dict, state: Dict, catalog: Catalog):
 
         singer.write_schema(tap_stream_id, stream_schema, stream_obj.key_properties, stream.replication_key)
 
-        state = stream_obj.sync(state, stream_schema, stream_metadata)
-        singer.write_state(state)
+        stream_obj.sync(state, stream_schema, stream_metadata)
 
     state = singer.set_currently_syncing(state, None)
     singer.write_state(state)

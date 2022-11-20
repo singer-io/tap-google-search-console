@@ -3,7 +3,7 @@ from singer.metadata import get_standard_metadata
 from singer.logger import get_logger
 import json
 from typing import Dict, Tuple, Union, List
-from singer import Transformer, metrics, write_record, utils, should_sync_field, metadata
+from singer import Transformer, metrics, write_record, utils, should_sync_field, metadata, write_state
 from datetime import timedelta, datetime
 from tap_google_search_console.helpers import encode_and_format_url, transform_json
 
@@ -61,7 +61,7 @@ class BaseStream(ABC):
     @abstractmethod
     def sync(self, state: Dict, schema: Dict, stream_metadata: Dict):
         """
-
+        Performs Sync
         """
 
     def __init__(self, client=None, config=None) -> None:
@@ -97,11 +97,12 @@ class IncrementalTableStream(BaseStream, ABC):
     replication_key = "date"
     pagination = "body"
     sub_types = ["web", "image", "video"]
-    body_params = {}
     row_limit = 10000
     path = "sites/{}/searchAnalytics/query"
-    dimension_list = []
     data_key = "rows"
+    now_dt_tm = utils.now()
+    dimension_list = []
+    body_params = {}
 
     # declaring this variable to keep track of number of
     # records processed per stream, per site, per sub_type
@@ -131,7 +132,7 @@ class IncrementalTableStream(BaseStream, ABC):
     def get_date_window_size(self) -> Union[str, int]:
         return self.config.get("DATE_WINDOW_SIZE", 30)
 
-    def write_bookmark(self, state: Dict, site: str, sub_type: str, value: str) -> Dict:
+    def write_bookmark(self, state: Dict, site: str, sub_type: str, value: str) -> None:
         """
         Writes bookmark to state file for a given stream, site, sub_type
         """
@@ -143,11 +144,9 @@ class IncrementalTableStream(BaseStream, ABC):
             state["bookmarks"][self.tap_stream_id][site] = {}
         state["bookmarks"][self.tap_stream_id][site][sub_type] = value
         LOGGER.info(f"Write state for Stream: {self.tap_stream_id}, Site: {site}, Type: {sub_type}, value: {value}")
+        write_state(state)
 
-        return state
-
-    def set_start_and_end_times(self, state: Dict, stream: str, sub_type: str, site: str) -> Tuple[datetime, datetime,
-                                                                                                   datetime]:
+    def set_start_and_end_times(self, state: Dict, stream: str, sub_type: str, site: str) -> Tuple[datetime, datetime]:
         """
         Method to set start and end times
         """
@@ -155,20 +154,17 @@ class IncrementalTableStream(BaseStream, ABC):
         report_bookmark = self.get_bookmark(state, stream, site, sub_type, self.config.get("start_date"))
         reports_dt_tm = utils.strptime_to_utc(report_bookmark)
 
-        # Get current datetime (now_dt_tm) for query parameters
-        now_dt_tm = utils.now()
-
-        attribution_start_dt_tm = now_dt_tm - timedelta(days=self.get_attribution_days)
+        attribution_start_dt_tm = self.now_dt_tm - timedelta(days=self.get_attribution_days)
 
         if reports_dt_tm < attribution_start_dt_tm:
             start_dt_tm = reports_dt_tm
         else:
             start_dt_tm = attribution_start_dt_tm
         end_dt_tm = start_dt_tm + timedelta(days=self.get_date_window_size)
-        if end_dt_tm > now_dt_tm:
-            end_dt_tm = now_dt_tm
+        if end_dt_tm > self.now_dt_tm:
+            end_dt_tm = self.now_dt_tm
 
-        return start_dt_tm, end_dt_tm, now_dt_tm
+        return start_dt_tm, end_dt_tm
 
     def set_dimensions_in_payload(self, stream_metadata: Dict) -> List:
         """
@@ -200,15 +196,15 @@ class IncrementalTableStream(BaseStream, ABC):
                     primary_keys_only = {id_field: record.get(id_field) for id_field in self.key_properties}
                     raise ValueError(f"Missing key {key} in record with primary keys {primary_keys_only}")
 
-    def modify_start_end_dt_tm(self, end_dt_tm: datetime, now_dt_tm: datetime) -> Tuple[datetime, datetime]:
+    def modify_start_end_dt_tm(self, end_dt_tm: datetime) -> Tuple[datetime, datetime]:
         """
         Sets start_date_time of a new window to end_date_time of old window
         Sets end_date_time of new window to 30 days(date_window_size) ahead since start_date_time
         """
         start_dt_tm = end_dt_tm
         end_dt_tm = start_dt_tm + timedelta(days=self.get_date_window_size)
-        if end_dt_tm > now_dt_tm:
-            end_dt_tm = now_dt_tm
+        if end_dt_tm > self.now_dt_tm:
+            end_dt_tm = self.now_dt_tm
         return start_dt_tm, end_dt_tm
 
     def process_records(self, schema: Dict, stream_metadata: Dict, records: List, time_extracted: datetime,
@@ -254,13 +250,12 @@ class IncrementalTableStream(BaseStream, ABC):
             self.records_extracted += counter.value
             return max_bookmark_value
 
-    def get_records_for_sub_type(self, site_url: str, sub_type: str, state: Dict, schema: Dict, stream_metadata: Dict) \
-            -> Dict:
+    def get_records_for_sub_type(self, site_url: str, sub_type: str, state: Dict, schema: Dict, stream_metadata: Dict) -> None:
         """
         Sync the data for a given sub_type, stream, site
         Gets the bookmark value or start date value, extracts data for date window size of 30 days
         """
-        start_dt_tm, end_dt_tm, now_dt_tm = self.set_start_and_end_times(state, site_url, self.tap_stream_id, sub_type)
+        start_dt_tm, end_dt_tm = self.set_start_and_end_times(state, site_url, self.tap_stream_id, sub_type)
         LOGGER.info(f"bookmark value or start date for {self.tap_stream_id} {site_url} {sub_type}: {start_dt_tm}")
         site_path = encode_and_format_url(site_url, self.path)
         while start_dt_tm < end_dt_tm:
@@ -268,7 +263,8 @@ class IncrementalTableStream(BaseStream, ABC):
             last_datetime = self.get_bookmark(state, self.tap_stream_id, site_url, sub_type,
                                               self.config.get("start_date"))
             bookmark_value = last_datetime
-            start_str, end_str = utils.strftime(start_dt_tm)[0:10], utils.strftime(end_dt_tm)[0:10]
+            start_str, end_str = utils.strftime(start_dt_tm)[:10], utils.strftime(end_dt_tm)[:10]
+
             LOGGER.info(f"Running sync for {site_url}, {self.tap_stream_id}, {sub_type} between date window "
                         f"{start_str} {end_str}")
             payload = self.make_payload(sub_type, start_str, end_str, stream_metadata)
@@ -278,8 +274,8 @@ class IncrementalTableStream(BaseStream, ABC):
                 LOGGER.info(f"body = {body}")
                 data = self.client.post(site_path, endpoint=self.tap_stream_id, data=json.dumps(body))
                 if not data:
-                    state = self.write_bookmark(state, site_url, sub_type, bookmark_value)
-                    start_dt_tm, end_dt_tm = self.modify_start_end_dt_tm(end_dt_tm, now_dt_tm)
+                    self.write_bookmark(state, site_url, sub_type, bookmark_value)
+                    start_dt_tm, end_dt_tm = self.modify_start_end_dt_tm(end_dt_tm)
                 transformed_data = []
                 if self.data_key in data:
                     transformed_data = transform_json(data, self.tap_stream_id, self.data_key, site_url, sub_type,
@@ -288,21 +284,20 @@ class IncrementalTableStream(BaseStream, ABC):
                     LOGGER.info("Number of raw data records: 0")
 
                 if not transformed_data:
-                    state = self.write_bookmark(state, site_url, sub_type, bookmark_value)
-                    start_dt_tm, end_dt_tm = self.modify_start_end_dt_tm(end_dt_tm, now_dt_tm)
+                    self.write_bookmark(state, site_url, sub_type, bookmark_value)
+                    start_dt_tm, end_dt_tm = self.modify_start_end_dt_tm(end_dt_tm)
 
                 self.validate_keys_in_data(transformed_data)
                 LOGGER.info(f"Total synced records for {sub_type} {self.tap_stream_id}: {len(transformed_data)}")
                 batch_count = len(transformed_data)
                 bookmark_value = self.process_records(schema, stream_metadata, transformed_data, time_extracted,
                                                       bookmark_value, last_datetime=last_datetime)
-                state = self.write_bookmark(state, site_url, sub_type, bookmark_value)
+                self.write_bookmark(state, site_url, sub_type, bookmark_value)
                 offset = offset + row_limit
 
-            start_dt_tm, end_dt_tm = self.modify_start_end_dt_tm(end_dt_tm, now_dt_tm)
-        return state
+            start_dt_tm, end_dt_tm = self.modify_start_end_dt_tm(end_dt_tm)
 
-    def get_records_for_site(self, site_url: str, state: Dict, schema: Dict, stream_metadata: Dict) -> Dict:
+    def get_records_for_site(self, site_url: str, state: Dict, schema: Dict, stream_metadata: Dict) -> None:
         """
         Starts Syncing data for each sub_type for a given site
         Logs the total number of extracted records
@@ -310,31 +305,28 @@ class IncrementalTableStream(BaseStream, ABC):
         for sub_type in self.sub_types:
             LOGGER.info(f"Starting Sync for Stream {self.tap_stream_id}, Site {site_url}, Type {sub_type}")
             self.records_extracted = 0
-            state = self.get_records_for_sub_type(site_url, sub_type, state, schema, stream_metadata)
+            self.get_records_for_sub_type(site_url, sub_type, state, schema, stream_metadata)
             LOGGER.info(f"Total records extracted for Stream: {self.tap_stream_id}, Site: {site_url}, Type: {sub_type}:"
                         f" {self.records_extracted}")
             LOGGER.info(f"Finished Sync for Stream {self.tap_stream_id}, Site {site_url}, Type {sub_type}")
 
-        return state
 
-    def get_records(self, state: Dict, schema: Dict, stream_metadata: Dict) -> Dict:
+    def get_records(self, state: Dict, schema: Dict, stream_metadata: Dict) -> None:
         """
         starts extracting data for each site_url configured by the user
         """
         for site in self.get_site_url():
             LOGGER.info(f"Starting Sync for Stream {self.tap_stream_id}, Site {site}")
-            state = self.get_records_for_site(site, state, schema, stream_metadata)
+            self.get_records_for_site(site, state, schema, stream_metadata)
             LOGGER.info(f"Finished Sync for Stream {self.tap_stream_id}, Site {site}")
-        return state
 
-    def sync(self, state: Dict, schema: Dict, stream_metadata: Dict) -> Dict:
+    def sync(self, state: Dict, schema: Dict, stream_metadata: Dict) -> None:
         """
         Starts Sync
         """
         LOGGER.info(f"Starting Sync for Stream {self.tap_stream_id}")
-        state = self.get_records(state, schema, stream_metadata)
+        self.get_records(state, schema, stream_metadata)
         LOGGER.info(f"Finished Sync for Stream {self.tap_stream_id}")
-        return state
 
 
 class FullTableStream(BaseStream, ABC):
@@ -363,4 +355,3 @@ class FullTableStream(BaseStream, ABC):
                     transformed_record = transformer.transform(record, schema, stream_metadata)
                     write_record(self.tap_stream_id, transformed_record, time_extracted=time_extracted)
                     counter.increment()
-        return state
