@@ -1,0 +1,21 @@
+[tool.black]
+line-length = 120
+target-version = ['py37',]
+include = '\.pyi?$'
+
+[flake8]
+profile = "black"
+max-line-length = 120
+exclude = "build,.git,.tox,./tests/.env,tests"
+ignore = "W504,W601,D203"
+
+[tool.pylint]
+max-line-length = 120
+disable = ["R0801",]
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+
+[tool.bandit]
+exclude_dirs = ["tests",".env"]

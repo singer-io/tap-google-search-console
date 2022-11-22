@@ -1,18 +1,21 @@
-from .abstract import FullTableStream
-from tap_google_search_console.helpers import encode_and_format_url, transform_json
+from typing import Dict, Iterator
+
 from singer.logger import get_logger
-from typing import Iterator, Dict
+
+from tap_google_search_console.helpers import encode_and_format_url, transform_json
+
+from .abstract import FullTableStream
 
 LOGGER = get_logger()
 
 
 class Sites(FullTableStream):
-    """
-    Class Representing the `Sites` Stream
-    """
+    """Class Representing the `Sites` Stream."""
 
     tap_stream_id = "sites"
-    key_properties = ["site_url", ]
+    key_properties = [
+        "site_url",
+    ]
 
     data_key = "site_entry"
     path = "sites/{}"
@@ -22,9 +25,7 @@ class Sites(FullTableStream):
         super().__init__(client, config)
 
     def get_records(self) -> Iterator[Dict]:
-        """
-        Performs API calls to extract data for each site
-        """
+        """Performs API calls to extract data for each site."""
         records = []
         for site in self.get_site_url():
             path = encode_and_format_url(site, self.path)

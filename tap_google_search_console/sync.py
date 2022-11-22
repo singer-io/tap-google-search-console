@@ -1,6 +1,8 @@
 from typing import Dict
+
 import singer
-from singer import Transformer, metadata, Catalog
+from singer import Catalog, metadata
+
 from .client import GoogleClient as Client
 from .streams import STREAMS
 
@@ -8,7 +10,7 @@ LOGGER = singer.get_logger()
 
 
 def sync(client: Client, config: Dict, state: Dict, catalog: Catalog):
-    """Sync data from tap source"""
+    """Sync data from tap source."""
     if state is None:
         state = {}
 

@@ -1,22 +1,22 @@
 from base import GoogleSearchConsoleBaseTest
-from tap_tester import runner, connections
+from tap_tester import connections, runner
 
 
 class GoogleConsoleAutomaticFields(GoogleSearchConsoleBaseTest):
-    """
-    Verify that for each stream you can get multiple pages of data
-    when no fields are selected and only the automatic fields are replicated.
-    """
-    
+    """Verify that for each stream you can get multiple pages of data when no
+    fields are selected and only the automatic fields are replicated."""
+
     @staticmethod
     def name():
         return "tap_tester_google_console_search_automatic_fields"
-    
+
     def test_run(self):
-        """
-        • Verify we can deselect all fields except when inclusion=automatic, which is handled by base.py methods
+        """• Verify we can deselect all fields except when inclusion=automatic,
+        which is handled by base.py methods.
+
         • Verify that only the automatic fields are sent to the target.
-        • Verify that all replicated records have unique primary key values.
+        • Verify that all replicated records have unique primary key
+        values.
         """
 
         expected_streams = self.expected_streams()
@@ -28,11 +28,14 @@ class GoogleConsoleAutomaticFields(GoogleSearchConsoleBaseTest):
         found_catalogs = self.run_and_verify_check_mode(conn_id)
 
         # Table and Field selection
-        test_catalogs_automatic_fields = [catalog for catalog in found_catalogs
-                                          if catalog.get('stream_name') in expected_streams]
+        test_catalogs_automatic_fields = [
+            catalog for catalog in found_catalogs if catalog.get("stream_name") in expected_streams
+        ]
 
         self.perform_and_verify_table_and_field_selection(
-            conn_id, test_catalogs_automatic_fields, select_all_fields=False,
+            conn_id,
+            test_catalogs_automatic_fields,
+            select_all_fields=False,
         )
 
         # Run initial sync
@@ -47,23 +50,28 @@ class GoogleConsoleAutomaticFields(GoogleSearchConsoleBaseTest):
 
                 # Collect actual values
                 data = synced_records.get(stream)
-                record_messages_keys = [set(row['data'].keys()) for row in data['messages']]
-                primary_keys_list = [tuple(message.get('data').get(expected_pk) for expected_pk in expected_keys)
-                    for message in data.get('messages')
-                    if message.get('action') == 'upsert']
+                record_messages_keys = [set(row["data"].keys()) for row in data["messages"]]
+                primary_keys_list = [
+                    tuple(message.get("data").get(expected_pk) for expected_pk in expected_keys)
+                    for message in data.get("messages")
+                    if message.get("action") == "upsert"
+                ]
                 unique_primary_keys_list = set(primary_keys_list)
-
 
                 # Verify that you get some records for each stream
                 self.assertGreater(
-                    record_count_by_stream.get(stream, -1), 0,
-                    msg="The number of records is not over the stream max limit")
+                    record_count_by_stream.get(stream, -1),
+                    0,
+                    msg="The number of records is not over the stream max limit",
+                )
 
                 # Verify that only the automatic fields are sent to the target
                 for actual_keys in record_messages_keys:
                     self.assertSetEqual(expected_keys, actual_keys)
-                    
+
                 # Verify if all the replicated records have unique primary key values
-                self.assertEqual(len(unique_primary_keys_list), len(primary_keys_list),
-                                 msg="Replicated record does not have unique primary key values.")
-        
+                self.assertEqual(
+                    len(unique_primary_keys_list),
+                    len(primary_keys_list),
+                    msg="Replicated record does not have unique primary key values.",
+                )

@@ -1,22 +1,19 @@
 from singer.logger import get_logger
 
 from .abstract import IncrementalTableStream
-from typing import Dict, List
 
 LOGGER = get_logger()
 
 
 class PerformanceReportCustom(IncrementalTableStream):
-    """
-    Class Representing the `performance_report_custom` Stream
-    """
+    """Class Representing the `performance_report_custom` Stream."""
 
     tap_stream_id = "performance_report_custom"
     key_properties = ["site_url", "search_type", "date", "dimensions_hash_key"]
     valid_replication_keys = ("date",)
 
-    body_params = {'aggregationType': 'auto'}
-    dimension_list = ['date', 'country', 'device', 'page', 'query']
+    body_params = {"aggregationType": "auto"}
+    dimension_list = ["date", "country", "device", "page", "query"]
 
     def __init__(self, client=None, config=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
@@ -24,15 +21,13 @@ class PerformanceReportCustom(IncrementalTableStream):
 
 
 class PerformanceReportDate(IncrementalTableStream):
-    """
-    Class Representing the `performance_report_date` Stream
-    """
+    """Class Representing the `performance_report_date` Stream."""
 
     tap_stream_id = "performance_report_date"
     key_properties = ["site_url", "search_type", "date"]
     valid_replication_keys = ("date",)
 
-    body_params = {'aggregationType': 'byProperty', 'dimensions': ['date']}
+    body_params = {"aggregationType": "byProperty", "dimensions": ["date"]}
 
     def __init__(self, client=None, config=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
@@ -40,15 +35,13 @@ class PerformanceReportDate(IncrementalTableStream):
 
 
 class PerformanceReportCountry(IncrementalTableStream):
-    """
-    Class Representing the `performance_report_country` Stream
-    """
+    """Class Representing the `performance_report_country` Stream."""
 
     tap_stream_id = "performance_report_country"
     key_properties = ["site_url", "search_type", "date", "country"]
     valid_replication_keys = ("date",)
 
-    body_params = {'aggregationType': 'byProperty', 'dimensions': ['date', 'country']}
+    body_params = {"aggregationType": "byProperty", "dimensions": ["date", "country"]}
 
     def __init__(self, client=None, config=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
@@ -56,15 +49,13 @@ class PerformanceReportCountry(IncrementalTableStream):
 
 
 class PerformanceReportDevices(IncrementalTableStream):
-    """
-    Class Representing the `performance_report_device` Stream
-    """
+    """Class Representing the `performance_report_device` Stream."""
 
     tap_stream_id = "performance_report_device"
     key_properties = ["site_url", "search_type", "date", "device"]
     valid_replication_keys = ("date",)
 
-    body_params = {'aggregationType': 'byProperty', 'dimensions': ['date', 'device']}
+    body_params = {"aggregationType": "byProperty", "dimensions": ["date", "device"]}
 
     def __init__(self, client=None, config=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
@@ -72,15 +63,13 @@ class PerformanceReportDevices(IncrementalTableStream):
 
 
 class PerformanceReportPage(IncrementalTableStream):
-    """
-    Class Representing the `performance_report_page` Stream
-    """
+    """Class Representing the `performance_report_page` Stream."""
 
     tap_stream_id = "performance_report_page"
     key_properties = ["site_url", "search_type", "date", "page"]
     valid_replication_keys = ("date", "page")
 
-    body_params = {'aggregationType': 'byPage', 'dimensions': ['date', 'page']}
+    body_params = {"aggregationType": "byPage", "dimensions": ["date", "page"]}
 
     def __init__(self, client=None, config=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
@@ -88,15 +77,13 @@ class PerformanceReportPage(IncrementalTableStream):
 
 
 class PerformanceReportQuery(IncrementalTableStream):
-    """
-    Class Representing the `performance_report_query` Stream
-    """
+    """Class Representing the `performance_report_query` Stream."""
 
     tap_stream_id = "performance_report_query"
     key_properties = ["site_url", "search_type", "date", "query"]
     valid_replication_keys = ("date",)
 
-    body_params = {'aggregationType': 'byProperty', 'dimensions': ['date', 'query']}
+    body_params = {"aggregationType": "byProperty", "dimensions": ["date", "query"]}
 
     def __init__(self, client=None, config=None) -> None:
         LOGGER.info("invoked %s", self.__class__)
