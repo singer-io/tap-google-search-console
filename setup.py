@@ -12,8 +12,8 @@ setup(
     install_requires=["backoff==1.8.0", "requests==2.22.0", "singer-python==5.13.0"],
     extras_require={
         "dev": [
-            "ipdb==0.11",
-            "pylint==2.5.3",
+            "ipdb",
+            "pylint",
         ]
     },
     entry_points="""
