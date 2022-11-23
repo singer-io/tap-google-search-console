@@ -16,10 +16,6 @@ class Sitemaps(FullTableStream):
     data_key = "sitemap"
     path = "sites/{}/sitemaps"
 
-    def __init__(self, client=None, config=None) -> None:
-        LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client, config)
-
     def get_records(self) -> Iterator[Dict]:
         """
         Performs API calls to extract data for each site

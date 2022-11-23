@@ -19,11 +19,3 @@ STREAMS = {
     PerformanceReportPage.tap_stream_id:PerformanceReportPage,
     PerformanceReportQuery.tap_stream_id:PerformanceReportQuery
 }
-
-
-    # "performance_report_custom": PerformanceReportCustom,
-    # "performance_report_date": PerformanceReportDate,
-    # "performance_report_country": PerformanceReportCountry,
-    # "performance_report_device": PerformanceReportDevices,
-    # "performance_report_page": PerformanceReportPage,
-    # "performance_report_query": PerformanceReportQuery,

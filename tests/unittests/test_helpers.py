@@ -11,7 +11,6 @@ class TestHelpers(TestCase):
         name = "TestCamelCase"
         self.assertEqual(helpers.convert(name), "test_camel_case")
 
-
     def test_convert_array(self):
         """
         Tests the function which converts all the nested dict type `KEYS` in list of items from camel to snake case
@@ -29,7 +28,6 @@ class TestHelpers(TestCase):
             [{'first_name': 'tester', 'second_name': 'dev'}]}
         self.assertEquals(helpers.convert_json(input_json), expected_output)
 
-
     def test_add_search_types(self):
         """
         Tests the function to add `search_type` Key to row in extracted data
@@ -37,8 +35,8 @@ class TestHelpers(TestCase):
         input_data = {"rows": [{"app_name": "singer-io", "app_id": 124}, {"app_name": "", "app_id": 343}]}
         expected_output = {"rows": [{"app_name": "singer-io", "app_id": 124, "search_type": "app"},
                                     {"app_name": "", "app_id": 343, "search_type": "app"}]}
-        self.assertEquals(helpers.add_search_type(input_data, "rows", "app"), expected_output)
-
+        self.assertEquals(helpers.add_site_url_search_type(input_data, "rows", "app",
+                                                           key_name="search_type"), expected_output)
 
     def test_add_site_url(self):
         """
@@ -47,5 +45,5 @@ class TestHelpers(TestCase):
         input_data = {"rows": [{"app_name": "singer-io", "app_id": 124}, {"app_name": "", "app_id": 343}]}
         expected_output = {"rows": [{"app_name": "singer-io", "app_id": 124, "site_url": "https://www.test.com"},
                                     {"app_name": "", "app_id": 343, "site_url": "https://www.test.com"}]}
-        self.assertEquals(helpers.add_site_url(input_data, "rows", "https://www.test.com"), expected_output)
+        self.assertEquals(helpers.add_site_url_search_type(input_data, "rows", "https://www.test.com"), expected_output)
 

@@ -18,10 +18,6 @@ class PerformanceReportCustom(IncrementalTableStream):
     body_params = {'aggregationType': 'auto'}
     dimension_list = ['date', 'country', 'device', 'page', 'query']
 
-    def __init__(self, client=None, config=None) -> None:
-        LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client, config)
-
 
 class PerformanceReportDate(IncrementalTableStream):
     """
@@ -33,10 +29,6 @@ class PerformanceReportDate(IncrementalTableStream):
     valid_replication_keys = ("date",)
 
     body_params = {'aggregationType': 'byProperty', 'dimensions': ['date']}
-
-    def __init__(self, client=None, config=None) -> None:
-        LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client, config)
 
 
 class PerformanceReportCountry(IncrementalTableStream):
@@ -50,10 +42,6 @@ class PerformanceReportCountry(IncrementalTableStream):
 
     body_params = {'aggregationType': 'byProperty', 'dimensions': ['date', 'country']}
 
-    def __init__(self, client=None, config=None) -> None:
-        LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client, config)
-
 
 class PerformanceReportDevices(IncrementalTableStream):
     """
@@ -65,10 +53,6 @@ class PerformanceReportDevices(IncrementalTableStream):
     valid_replication_keys = ("date",)
 
     body_params = {'aggregationType': 'byProperty', 'dimensions': ['date', 'device']}
-
-    def __init__(self, client=None, config=None) -> None:
-        LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client, config)
 
 
 class PerformanceReportPage(IncrementalTableStream):
@@ -82,10 +66,6 @@ class PerformanceReportPage(IncrementalTableStream):
 
     body_params = {'aggregationType': 'byPage', 'dimensions': ['date', 'page']}
 
-    def __init__(self, client=None, config=None) -> None:
-        LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client, config)
-
 
 class PerformanceReportQuery(IncrementalTableStream):
     """
@@ -97,7 +77,3 @@ class PerformanceReportQuery(IncrementalTableStream):
     valid_replication_keys = ("date",)
 
     body_params = {'aggregationType': 'byProperty', 'dimensions': ['date', 'query']}
-
-    def __init__(self, client=None, config=None) -> None:
-        LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client, config)

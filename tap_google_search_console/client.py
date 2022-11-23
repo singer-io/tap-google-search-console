@@ -45,7 +45,7 @@ class GoogleClient:  # pylint: disable=too-many-instance-attributes
         for _ in self.__site_urls.replace(" ", "").split(","):
             self.post(f"sites/{quote(_, safe='')}/searchAnalytics/query", data=body)
 
-    @backoff.on_exception(backoff.expo, Server5xxError, max_tries=5, factor=2)
+    @backoff.on_exception(backoff.expo, (Server5xxError, ConnectionError, Timeout), max_tries=5, factor=2)
     def __enter__(self):
         self.get_access_token()
         return self
