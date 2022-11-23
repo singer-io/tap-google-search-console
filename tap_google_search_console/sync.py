@@ -9,8 +9,6 @@ LOGGER = singer.get_logger()
 
 def sync(client: Client, config: Dict, state: Dict, catalog: Catalog):
     """Sync data from tap source"""
-    if state is None:
-        state = {}
 
     for stream in catalog.get_selected_streams(state):
         tap_stream_id = stream.tap_stream_id

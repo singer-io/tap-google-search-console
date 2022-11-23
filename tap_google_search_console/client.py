@@ -35,15 +35,15 @@ class GoogleClient:  # pylint: disable=too-many-instance-attributes
         self.__session = requests.Session()
 
         try:
-            self.request_timeout = float(timeout) if (timeout not in (None, 0, "0", "0.0")) else REQUEST_TIMEOUT
+            self.request_timeout = REQUEST_TIMEOUT if timeout in (None, 0, "0", "0.0") else float(timeout)
         except ValueError:
             self.request_timeout = REQUEST_TIMEOUT
 
     def check_sites_access(self) -> None:
         """Perform access check for each site url provided"""
         body = json.dumps({"startDate": "2021-04-01", "endDate": "2021-05-01"})
-        for _ in self.__site_urls.replace(" ", "").split(","):
-            self.post(f"sites/{quote(_, safe='')}/searchAnalytics/query", data=body)
+        for site_url in self.__site_urls.replace(" ", "").split(","):
+            self.post(f"sites/{quote(site_url, safe='')}/searchAnalytics/query", data=body)
 
     @backoff.on_exception(backoff.expo, (Server5xxError, ConnectionError, Timeout), max_tries=5, factor=2)
     def __enter__(self):
@@ -76,7 +76,7 @@ class GoogleClient:  # pylint: disable=too-many-instance-attributes
 
         data = response.json()
         self.__access_token = data["access_token"]
-        self.__expires = datetime.now(timezone.utc) + timedelta(seconds=data["expires_in"])
+        self.__expires = utils.now() + timedelta(seconds=data["expires_in"])
 
         LOGGER.info("Authorized, token expires = %s", self.__expires)
 

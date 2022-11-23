@@ -136,8 +136,7 @@ def transform_json(data_object: Dict, stream_name: str, path: str = "", site: st
     Run all transforms: convert camelCase to snake_case for field_name keys,
     and stream-specific transforms for sitemaps and performance_reports.
     """
-    if dimensions_list is None:
-        dimensions_list = []
+    dimensions_list = dimensions_list or []
     converted_json = convert_json(data_object)
     if stream_name == "sitemaps":
         return add_site_url_search_type(converted_json, path, site)
