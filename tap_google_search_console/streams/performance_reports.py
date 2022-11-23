@@ -15,10 +15,6 @@ class PerformanceReportCustom(IncrementalTableStream):
     body_params = {"aggregationType": "auto"}
     dimension_list = ["date", "country", "device", "page", "query"]
 
-    def __init__(self, client=None, config=None) -> None:
-        LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client, config)
-
 
 class PerformanceReportDate(IncrementalTableStream):
     """Class Representing the `performance_report_date` Stream."""
@@ -28,10 +24,6 @@ class PerformanceReportDate(IncrementalTableStream):
     valid_replication_keys = ("date",)
 
     body_params = {"aggregationType": "byProperty", "dimensions": ["date"]}
-
-    def __init__(self, client=None, config=None) -> None:
-        LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client, config)
 
 
 class PerformanceReportCountry(IncrementalTableStream):
@@ -43,10 +35,6 @@ class PerformanceReportCountry(IncrementalTableStream):
 
     body_params = {"aggregationType": "byProperty", "dimensions": ["date", "country"]}
 
-    def __init__(self, client=None, config=None) -> None:
-        LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client, config)
-
 
 class PerformanceReportDevices(IncrementalTableStream):
     """Class Representing the `performance_report_device` Stream."""
@@ -56,10 +44,6 @@ class PerformanceReportDevices(IncrementalTableStream):
     valid_replication_keys = ("date",)
 
     body_params = {"aggregationType": "byProperty", "dimensions": ["date", "device"]}
-
-    def __init__(self, client=None, config=None) -> None:
-        LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client, config)
 
 
 class PerformanceReportPage(IncrementalTableStream):
@@ -71,10 +55,6 @@ class PerformanceReportPage(IncrementalTableStream):
 
     body_params = {"aggregationType": "byPage", "dimensions": ["date", "page"]}
 
-    def __init__(self, client=None, config=None) -> None:
-        LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client, config)
-
 
 class PerformanceReportQuery(IncrementalTableStream):
     """Class Representing the `performance_report_query` Stream."""
@@ -84,7 +64,3 @@ class PerformanceReportQuery(IncrementalTableStream):
     valid_replication_keys = ("date",)
 
     body_params = {"aggregationType": "byProperty", "dimensions": ["date", "query"]}
-
-    def __init__(self, client=None, config=None) -> None:
-        LOGGER.info("invoked %s", self.__class__)
-        super().__init__(client, config)

@@ -70,16 +70,13 @@ class BaseStream(ABC):
     @classmethod
     def get_metadata(cls, schema) -> Dict[str, str]:
         """Returns a `dict` for generating stream metadata."""
-        metadata = get_standard_metadata(
-            **{
-                "schema": schema,
-                "key_properties": cls.key_properties,
-                "valid_replication_keys": cls.valid_replication_keys,
-                "replication_method": cls.replication_method or cls.forced_replication_method,
-            }
-        )
-
-        return metadata
+        return get_standard_metadata(**{
+            "schema": schema,
+            "key_properties": cls.key_properties,
+            "valid_replication_keys": cls.valid_replication_keys,
+            "replication_method": cls.replication_method or cls.forced_replication_method,
+        }
+                                         )
 
     def get_site_url(self):
         return self.config.get("site_urls", "").replace(" ", "").split(",")
@@ -262,6 +259,8 @@ class IncrementalTableStream(BaseStream, ABC):
                 data = self.client.post(site_path, endpoint=self.tap_stream_id, data=json.dumps(body))
                 if not data:
                     self.write_bookmark(state, site_url, sub_type, bookmark_value)
+                    LOGGER.info(f"There are no raw data records for date window {start_dt_tm} to {end_dt_tm}, "
+                                f" from offset value {offset}")
                     start_dt_tm, end_dt_tm = self.modify_start_end_dt_tm(end_dt_tm)
                 transformed_data = []
                 if self.data_key in data:
@@ -273,8 +272,6 @@ class IncrementalTableStream(BaseStream, ABC):
                         sub_type,
                         dimensions_list=payload.get("dimensions", []),
                     )[self.data_key]
-                else:
-                    LOGGER.info("Number of raw data records: 0")
 
                 if not transformed_data:
                     self.write_bookmark(state, site_url, sub_type, bookmark_value)

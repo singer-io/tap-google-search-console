@@ -20,10 +20,6 @@ class Sites(FullTableStream):
     data_key = "site_entry"
     path = "sites/{}"
 
-    def __init__(self, client=None, config=None) -> None:
-        # LOGGER.info("invoked %s", self.__class__) ss
-        super().__init__(client, config)
-
     def get_records(self) -> Iterator[Dict]:
         """Performs API calls to extract data for each site."""
         records = []
