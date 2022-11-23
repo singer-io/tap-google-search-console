@@ -145,7 +145,7 @@ def raise_for_error(response):
     error_code = response.status_code
     error_message = response_json.get("error_description") or response_json.get(
         "error", ERROR_CODE_EXCEPTION_MAPPING.get(error_code, {})
-    ).get("message", "An Unknown Error " "occurred, please try " "after some time.")
+    ).get("message", "An Unknown Error occurred,please try after some time.")
 
     message = f"HTTP-error-code: {error_code}, Error: {error_message}"
 

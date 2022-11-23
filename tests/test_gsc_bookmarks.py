@@ -20,18 +20,18 @@ class GoogleSearchConsoleBookMarkTest(GoogleSearchConsoleBaseTest):
     def test_run(self):
         """Verify that for each stream you can do a sync which records
         bookmarks.
-
         That the bookmark is the maximum value sent to the target for
         the replication key. That a second sync respects the bookmark
         All data of the second sync is >= the bookmark from the first
-        sync     The number of records in the 2nd sync is less then the
-        first (This assumes that         new data added to the stream is
-        done at a rate slow enough that you haven't         doubled the
+        sync The number of records in the 2nd sync is less than the
+        first (This assumes that new data added to the stream is
+        done at a rate slow enough that you haven't doubled the
         amount of data from the start date to the first sync between the
         first sync and second sync run in this test) Verify that for
         full table stream, all data replicated in sync 1 is replicated
-        again in sync 2. PREREQUISITE For EACH stream that is
-        incrementally replicated there are multiple rows of data with
+        again in sync 2.
+        PREREQUISITE For EACH stream that is incrementally replicated
+        there are multiple rows of data with
         different values for the replication key
         """
 
