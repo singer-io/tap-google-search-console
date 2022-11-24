@@ -1,20 +1,20 @@
 import json
-from typing import Tuple, Dict
+from typing import Dict, Tuple
+
 from singer.catalog import Catalog
+
+from tap_google_search_console.client import GoogleClient
 from tap_google_search_console.helpers import get_abs_path
 from tap_google_search_console.streams import STREAMS
-from tap_google_search_console.client import GoogleClient
 
 
 def get_schemas() -> Tuple[Dict, Dict]:
-    """
-    Builds the singer schema and metadata dictionaries.
-    """
+    """Builds the singer schema and metadata dictionaries."""
     streams, stream_metadata = {}, {}
 
     for stream_name, stream in STREAMS.items():
         schema_path = get_abs_path(f"schemas/{stream_name}.json")
-        
+
         with open(schema_path, encoding="utf-8") as file:
             schema = json.load(file)
 
@@ -24,9 +24,7 @@ def get_schemas() -> Tuple[Dict, Dict]:
 
 
 def discover(client: GoogleClient):
-    """
-    Performs permission check and starts discover
-    """
+    """Performs permission check and starts discover."""
     client.check_sites_access()
     schemas, schema_metadata = get_schemas()
     streams = []

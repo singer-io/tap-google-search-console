@@ -3,10 +3,16 @@
   "additionalProperties": false,
   "properties": {
     "permission_level": {
-      "type": ["null", "string"]
+      "type": [
+        "null",
+        "string"
+      ]
     },
     "site_url": {
-      "type": ["null", "string"]
+      "type": [
+        "null",
+        "string"
+      ]
     }
   }
 }

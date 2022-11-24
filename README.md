@@ -41,7 +41,7 @@ This tap:
 - Primary keys: site_url, search_type, date, country
 - Foreign keys: site_url
 - Replication strategy: Incremental (query filtered based on date)
-  - Filters: site_url, searchType, startDate (bookmark), endDate (current date) 
+  - Filters: site_url, searchType, startDate (bookmark), endDate (current date)
   - Sort by: date ASC (when date is a dimension, results are sorted by date ascending)
   - Bookmark: date (date-time)
 - Transformations: Fields camelCase to snake_case, denest dimensions key/values, remove keys list node
@@ -54,18 +54,18 @@ This tap:
   - dimensions_hash_key: MD5 hash key of ordered list of selected dimension values
 - Foreign keys: site_url
 - Replication strategy: Incremental (query filtered based on date)
-  - Filters: site_url, searchType, startDate (bookmark), endDate (current date) 
+  - Filters: site_url, searchType, startDate (bookmark), endDate (current date)
   - Sort by: date ASC (when date is a dimension, results are sorted by date ascending)
   - Bookmark: date (date-time)
 - Transformations: Fields camelCase to snake_case, denest dimensions key/values, remove keys list node
- 
+
  [**performance_report_date (POST)**](https://developers.google.com/webmaster-tools/search-console-api-original/v3/searchanalytics/query)
 - [Performance Report Description](https://support.google.com/webmasters/answer/7576553?hl=en)
 - Endpoint: https://www.googleapis.com/webmasters/v3/sites/{site_url}/searchAnalytics/query
 - Primary keys: site_url, search_type, date
 - Foreign keys: site_url
 - Replication strategy: Incremental (query filtered based on date)
-  - Filters: site_url, searchType, startDate (bookmark), endDate (current date) 
+  - Filters: site_url, searchType, startDate (bookmark), endDate (current date)
   - Sort by: date ASC (when date is a dimension, results are sorted by date ascending)
   - Bookmark: date (date-time)
 - Transformations: Fields camelCase to snake_case, denest dimensions key/values, remove keys list node
@@ -76,7 +76,7 @@ This tap:
 - Primary keys: site_url, search_type, date, device
 - Foreign keys: site_url
 - Replication strategy: Incremental (query filtered based on date)
-  - Filters: site_url, searchType, startDate (bookmark), endDate (current date) 
+  - Filters: site_url, searchType, startDate (bookmark), endDate (current date)
   - Sort by: date ASC (when date is a dimension, results are sorted by date ascending)
   - Bookmark: date (date-time)
 - Transformations: Fields camelCase to snake_case, denest dimensions key/values, remove keys list node
@@ -87,7 +87,7 @@ This tap:
 - Primary keys: site_url, search_type, date, page
 - Foreign keys: site_url
 - Replication strategy: Incremental (query filtered based on date)
-  - Filters: site_url, searchType, startDate (bookmark), endDate (current date) 
+  - Filters: site_url, searchType, startDate (bookmark), endDate (current date)
   - Sort by: date ASC (when date is a dimension, results are sorted by date ascending)
   - Bookmark: date (date-time)
 - Transformations: Fields camelCase to snake_case, denest dimensions key/values, remove keys list node
@@ -98,7 +98,7 @@ This tap:
 - Primary keys: site_url, search_type, date, query
 - Foreign keys: site_url
 - Replication strategy: Incremental (query filtered based on date)
-  - Filters: site_url, searchType, startDate (bookmark), endDate (current date) 
+  - Filters: site_url, searchType, startDate (bookmark), endDate (current date)
   - Sort by: date ASC (when date is a dimension, results are sorted by date ascending)
   - Bookmark: date (date-time)
 - Transformations: Fields camelCase to snake_case, denest dimensions key/values, remove keys list node
@@ -145,7 +145,7 @@ The [**Google Search Console Setup & Authentication**](https://drive.google.com/
         "request_timeout": 300
     }
     ```
-    
+
     Optionally, also create a `state.json` file. `currently_syncing` is an optional attribute used for identifying the last object to be synced in case the job is interrupted mid-stream. The next run would begin where the last job left off.
     Only the `performance_reports` uses a bookmark. The date-time bookmark is stored in a nested structure based on the endpoint, site, and sub_type.
 
@@ -286,7 +286,7 @@ The [**Google Search Console Setup & Authentication**](https://drive.google.com/
     ```
 
 6. Test the Tap
-    
+
     While developing the Google Search Console tap, the following utilities were run in accordance with Singer.io best practices:
     Pylint to improve [code quality](https://github.com/singer-io/getting-started/blob/master/docs/BEST_PRACTICES.md#code-quality):
     ```bash
