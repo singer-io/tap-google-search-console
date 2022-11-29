@@ -86,10 +86,6 @@ def verify_addon_search_types(configured_search_types: List):
     return valid_search_types
 
 
-
-
-
-
 def denest_key_fields(data_object: Dict, stream_name: str, path: str, dimensions_list: List):
     """Denest keys values list to dimension_list keys"""
     idx = 0
