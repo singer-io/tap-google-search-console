@@ -15,7 +15,7 @@ from singer import (
 from singer.logger import get_logger
 from singer.metadata import get_standard_metadata
 
-from tap_google_search_console.helpers import encode_and_format_url, transform_json
+from tap_google_search_console.helpers import encode_and_format_url, transform_json, verify_addon_search_types
 
 LOGGER = get_logger()
 
@@ -89,7 +89,7 @@ class IncrementalTableStream(BaseStream, ABC):
     forced_replication_method = "INCREMENTAL"
     replication_key = "date"
     pagination = "body"
-    sub_types = ["web", "image", "video", "news", "googleNews", "discover"]
+    sub_types = ["web", "image", "video"]
     row_limit = 10000
     path = "sites/{}/searchAnalytics/query"
     data_key = "rows"
@@ -333,6 +333,7 @@ class IncrementalTableStream(BaseStream, ABC):
 
     def get_records(self, state: Dict, schema: Dict, stream_metadata: Dict) -> None:
         """starts extracting data for each site_url configured by the user."""
+        self.sub_types = self.sub_types + verify_addon_search_types(self.config.get("addon_search_types", []))
         for site in self.get_site_url():
             LOGGER.info(f"Starting Sync for Stream {self.tap_stream_id}, Site {site}")
             self.get_records_for_site(site, state, schema, stream_metadata)

@@ -75,6 +75,21 @@ def hash_data(data):
     return hash_id.hexdigest()
 
 
+def verify_addon_search_types(configured_search_types: List):
+    """Validates add_on search_types configured by the User"""
+    valid_search_types = ["news", "googleNews", "discover"]
+    configured_search_types = [search_type.lower().replace(" ", "") for search_type in configured_search_types]
+    for search_type in valid_search_types.copy():
+        if search_type.lower().replace(" ", "") not in configured_search_types:
+            LOGGER.info(f"Search Type {search_type} is not configured by User")
+            valid_search_types.remove(search_type)
+    return valid_search_types
+
+
+
+
+
+
 def denest_key_fields(data_object: Dict, stream_name: str, path: str, dimensions_list: List):
     """Denest keys values list to dimension_list keys"""
     idx = 0
