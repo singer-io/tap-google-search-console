@@ -56,7 +56,7 @@ class GoogleSearchConsoleBaseTest(unittest.TestCase):
         if original:
             return properties_dict
 
-        properties_dict["addon_search_types"] = ["news", "discover", "googleNews"]
+        properties_dict["sync_all_search_types"] = ["news", "discover", "googleNews"]
 
         return properties_dict
 
