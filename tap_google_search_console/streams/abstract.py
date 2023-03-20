@@ -341,7 +341,7 @@ class IncrementalTableStream(BaseStream, ABC):
             LOGGER.info(f"Finished Sync for Stream {self.tap_stream_id}, Site {site}")
 
     def sync(self, state: Dict, schema: Dict, stream_metadata: Dict) -> None:
-        """Starts Sync."""
+        """Starts Sync"""
         LOGGER.info(f"Starting Sync for Stream {self.tap_stream_id}")
         self.get_records(state, schema, stream_metadata)
         LOGGER.info(f"Finished Sync for Stream {self.tap_stream_id}")
