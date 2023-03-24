@@ -89,7 +89,7 @@ class IncrementalTableStream(BaseStream, ABC):
     forced_replication_method = "INCREMENTAL"
     replication_key = "date"
     pagination = "body"
-    sub_types = ["web", "image", "video"]
+    sub_types = ["web", "image", "video", "news", "googleNews", "discover"]
     row_limit = 10000
     path = "sites/{}/searchAnalytics/query"
     data_key = "rows"
@@ -333,8 +333,6 @@ class IncrementalTableStream(BaseStream, ABC):
 
     def get_records(self, state: Dict, schema: Dict, stream_metadata: Dict) -> None:
         """starts extracting data for each site_url configured by the user."""
-        self.sub_types = self.sub_types + ["news", "googleNews", "discover"] if \
-            self.config.get("sync_all_search_type", "false") == "true" else []
         for site in self.get_site_url():
             LOGGER.info(f"Starting Sync for Stream {self.tap_stream_id}, Site {site}")
             self.get_records_for_site(site, state, schema, stream_metadata)

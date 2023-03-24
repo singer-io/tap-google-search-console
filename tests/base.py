@@ -56,8 +56,6 @@ class GoogleSearchConsoleBaseTest(unittest.TestCase):
         if original:
             return properties_dict
 
-        properties_dict["sync_all_search_types"] = ["news", "discover", "googleNews"]
-
         return properties_dict
 
     def get_credentials(self):
