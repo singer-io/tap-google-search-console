@@ -77,14 +77,6 @@ class GoogleSearchConsoleInterruptedSyncTest(GoogleSearchConsoleBaseTest):
                         .get("performance_report_query", {})
                         .get(site_url)
                         .get("news"),
-                        "discover": first_sync_bookmarks.get("bookmarks", {})
-                        .get("performance_report_query", {})
-                        .get(site_url)
-                        .get("discover"),
-                        "googleNews": first_sync_bookmarks.get("bookmarks", {})
-                        .get("performance_report_query", {})
-                        .get(site_url)
-                        .get("googleNews"),
                     }
                 },
                 "performance_report_date": {
@@ -123,7 +115,6 @@ class GoogleSearchConsoleInterruptedSyncTest(GoogleSearchConsoleBaseTest):
                         "image": self.get_start_date(),
                         "video": self.get_start_date(),
                         "news": self.get_start_date(),
-                        "discover": self.get_start_date(),
                         "googleNews": self.get_start_date(),
                     }
                 },
