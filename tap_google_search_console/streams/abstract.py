@@ -236,7 +236,7 @@ class IncrementalTableStream(BaseStream, ABC):
         """Sync the data for a given sub_type, stream, site Gets the bookmark
         value or start date value, extracts data for date window size of 30
         days."""
-        start_dt_tm, end_dt_tm = self.set_start_and_end_times(state, site_url, self.tap_stream_id, sub_type)
+        start_dt_tm, end_dt_tm = self.set_start_and_end_times(state, self.tap_stream_id, sub_type, site_url)
         LOGGER.info(f"bookmark value or start date for {self.tap_stream_id} {site_url} {sub_type}: {start_dt_tm}")
         site_path = encode_and_format_url(site_url, self.path)
         while start_dt_tm < end_dt_tm:
