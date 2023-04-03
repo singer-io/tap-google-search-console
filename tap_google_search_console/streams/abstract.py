@@ -112,11 +112,12 @@ class IncrementalTableStream(BaseStream, ABC):
 
     @property
     def get_attribution_days(self) -> Union[str, int]:
-        return self.config.get("ATTRIBUTION_DAYS", 14)
+        """Sets this value to 4days since there is data delay of 2-3 days from GSC"""
+        return int(self.config.get("ATTRIBUTION_DAYS", 4))
 
     @property
     def get_date_window_size(self) -> Union[str, int]:
-        return self.config.get("DATE_WINDOW_SIZE", 30)
+        return int(self.config.get("DATE_WINDOW_SIZE", 30))
 
     def write_bookmark(self, state: Dict, site: str, sub_type: str, value: str) -> None:
         """Writes bookmark to state file for a given stream, site, sub_type."""
@@ -136,12 +137,13 @@ class IncrementalTableStream(BaseStream, ABC):
         report_bookmark = self.get_bookmark(state, stream, site, sub_type, self.config.get("start_date"))
         reports_dt_tm = utils.strptime_to_utc(report_bookmark)
 
-        attribution_start_dt_tm = self.now_dt_tm - timedelta(days=self.get_attribution_days)
+        delta_days = (self.now_dt_tm - reports_dt_tm).days
 
-        if reports_dt_tm < attribution_start_dt_tm:
-            start_dt_tm = reports_dt_tm
+        if delta_days < self.get_attribution_days:
+            start_dt_tm = self.now_dt_tm - timedelta(days=self.get_attribution_days)
         else:
-            start_dt_tm = attribution_start_dt_tm
+            start_dt_tm = reports_dt_tm
+
         end_dt_tm = start_dt_tm + timedelta(days=self.get_date_window_size)
         if end_dt_tm > self.now_dt_tm:
             end_dt_tm = self.now_dt_tm
