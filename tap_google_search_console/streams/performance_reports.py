@@ -44,7 +44,7 @@ class PerformanceReportDevices(IncrementalTableStream):
     # Excluding discover sub_type since Requests for Discover cannot be grouped by device.
     # this also overwrites the sub_types attribute declared for class IncrementalTableStream
     # in abstract.py
-    sub_types = ["web", "image", "video", "news", "googleNews"]
+    sub_types = ["googleNews", "image", "news", "video", "web"]
     valid_replication_keys = ("date",)
 
     body_params = {"aggregationType": "byProperty", "dimensions": ["date", "device"]}
@@ -69,7 +69,7 @@ class PerformanceReportQuery(IncrementalTableStream):
     # grouping data for discover and googleNews
     # this also overwrites the sub_types attribute declared for class IncrementalTableStream
     # in abstract.py
-    sub_types = ["web", "image", "video", "news"]
+    sub_types = ["image", "news", "video", "web"]
     valid_replication_keys = ("date",)
 
     body_params = {"aggregationType": "byProperty", "dimensions": ["date", "query"]}

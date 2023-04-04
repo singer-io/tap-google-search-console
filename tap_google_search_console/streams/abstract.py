@@ -89,7 +89,7 @@ class IncrementalTableStream(BaseStream, ABC):
     forced_replication_method = "INCREMENTAL"
     replication_key = "date"
     pagination = "body"
-    sub_types = ["web", "image", "video", "news", "googleNews", "discover"]
+    sub_types = ["discover", "googleNews", "image", "news", "video", "web"]
     row_limit = 10000
     path = "sites/{}/searchAnalytics/query"
     data_key = "rows"
@@ -166,7 +166,7 @@ class IncrementalTableStream(BaseStream, ABC):
         """Creates payload for POST API Call."""
         if self.tap_stream_id == "performance_report_custom":
             self.body_params["dimensions"] = self.set_dimensions_in_payload(stream_metadata)
-            # Skip the extraction for type discover
+            # Remove discover dimension from dimension_list if sub_type is discover
             # Requests for Discover cannot be grouped by device
             if sub_type == "discover" and "device" in self.body_params["dimensions"]:
                 self.body_params["dimensions"].remove("device")

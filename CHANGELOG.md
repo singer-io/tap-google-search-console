@@ -1,7 +1,8 @@
 # Changelog
 
 ## 1.0.0
-  * Add support for new search types news, googleNews, discover [#39](https://github.com/singer-io/tap-google-search-console/pull/39)
+  * Add support for new search types discover, googleNews, news [#39](https://github.com/singer-io/tap-google-search-console/pull/39)
+  * General release of the tap
 
 ## 0.2.1
   * Handle no data exception for sitemaps stream [#38](https://github.com/singer-io/tap-google-search-console/pull/38)
