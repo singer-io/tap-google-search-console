@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.2.1
+  * Handle no data exception for sitemaps stream [#38](https://github.com/singer-io/tap-google-search-console/pull/38)
+
 ## 0.2.0
   * Code Refactoring [#32](https://github.com/singer-io/tap-google-search-console/pull/32)
     * Sets default value for `ATTRIBUTION_DAYS` parameter as 4 days
