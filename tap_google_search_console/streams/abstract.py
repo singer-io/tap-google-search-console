@@ -174,9 +174,8 @@ class IncrementalTableStream(BaseStream, ABC):
             self.body_params["aggregationType"] = "auto"
             # Remove query from dimension list if the sub_type is either discover or googleNews
             # query seems to be an invalid argument while grouping data for discover and googleNews
-            if self.tap_stream_id in ["performance_report_query",
-                                      "performance_report_custom"] and "query" in \
-                    self.body_params["dimensions"]:
+            if self.tap_stream_id == "performance_report_custom" and \
+                    "query" in self.body_params["dimensions"]:
                 self.body_params["dimensions"].remove("query")
 
         return {"type": sub_type, "startDate": start_date, "endDate": end_date, **self.body_params}
