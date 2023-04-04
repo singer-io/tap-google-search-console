@@ -85,6 +85,10 @@ class GoogleQuotaExceededError(GoogleError):
     pass
 
 
+class GoogleInvalidGrant(GoogleError):
+    pass
+
+
 # Error Codes: https://developers.google.com/webmaster-tools/search-console-api-original/v3/errors
 ERROR_CODE_EXCEPTION_MAPPING = {
     400: {"raise_exception": GoogleBadRequestError, "message": "The request is missing or has bad parameters."},
@@ -152,6 +156,9 @@ def raise_for_error(response):
     response_error = json.dumps(response_json.get("error", error_message))
     if error_code == 403 and "quotaExceeded" in response_error:
         ex = GoogleQuotaExceededError
+    elif error_code == 400 and "invalid_grant" in response_error:
+        ex = GoogleInvalidGrant
+        message = f"HTTP-error-code: {error_code}, Error: invalid_grant"
     else:
         ex = ERROR_CODE_EXCEPTION_MAPPING.get(error_code, {}).get("raise_exception", GoogleError)
     raise ex(message) from None

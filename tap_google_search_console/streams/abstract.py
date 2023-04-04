@@ -113,11 +113,11 @@ class IncrementalTableStream(BaseStream, ABC):
     @property
     def get_attribution_days(self) -> Union[str, int]:
         """Sets this value to 4days since there is data delay of 2-3 days from GSC"""
-        return int(self.config.get("ATTRIBUTION_DAYS", 4))
+        return int(self.config.get("ATTRIBUTION_DAYS") or 4)
 
     @property
     def get_date_window_size(self) -> Union[str, int]:
-        return int(self.config.get("DATE_WINDOW_SIZE", 30))
+        return int(self.config.get("DATE_WINDOW_SIZE") or 30)
 
     def write_bookmark(self, state: Dict, site: str, sub_type: str, value: str) -> None:
         """Writes bookmark to state file for a given stream, site, sub_type."""
