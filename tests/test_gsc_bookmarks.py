@@ -81,6 +81,9 @@ class GoogleSearchConsoleBookMarkTest(GoogleSearchConsoleBaseTest):
                         "image": second_sync_bookmark_date,
                         "web": second_sync_bookmark_date,
                         "video": second_sync_bookmark_date,
+                        "discover": second_sync_bookmark_date,
+                        "news": second_sync_bookmark_date,
+                        "googleNews": second_sync_bookmark_date,
                     }
                 },
                 "performance_report_country": {
@@ -88,6 +91,9 @@ class GoogleSearchConsoleBookMarkTest(GoogleSearchConsoleBaseTest):
                         "image": second_sync_bookmark_date,
                         "web": second_sync_bookmark_date,
                         "video": second_sync_bookmark_date,
+                        "discover": second_sync_bookmark_date,
+                        "news": second_sync_bookmark_date,
+                        "googleNews": second_sync_bookmark_date,
                     }
                 },
                 "performance_report_query": {
@@ -95,6 +101,7 @@ class GoogleSearchConsoleBookMarkTest(GoogleSearchConsoleBaseTest):
                         "image": second_sync_bookmark_date,
                         "web": second_sync_bookmark_date,
                         "video": second_sync_bookmark_date,
+                        "news": second_sync_bookmark_date,
                     }
                 },
                 "performance_report_date": {
@@ -102,6 +109,9 @@ class GoogleSearchConsoleBookMarkTest(GoogleSearchConsoleBaseTest):
                         "image": second_sync_bookmark_date,
                         "web": second_sync_bookmark_date,
                         "video": second_sync_bookmark_date,
+                        "discover": second_sync_bookmark_date,
+                        "news": second_sync_bookmark_date,
+                        "googleNews": second_sync_bookmark_date,
                     }
                 },
                 "performance_report_custom": {
@@ -109,6 +119,9 @@ class GoogleSearchConsoleBookMarkTest(GoogleSearchConsoleBaseTest):
                         "image": second_sync_bookmark_date,
                         "web": second_sync_bookmark_date,
                         "video": second_sync_bookmark_date,
+                        "discover": second_sync_bookmark_date,
+                        "news": second_sync_bookmark_date,
+                        "googleNews": second_sync_bookmark_date,
                     }
                 },
             },
