@@ -169,6 +169,8 @@ class IncrementalTableStream(BaseStream, ABC):
             # Remove discover dimension from dimension_list if sub_type is discover
             # Requests for Discover cannot be grouped by device
             if sub_type == "discover" and "device" in self.body_params["dimensions"]:
+                LOGGER.info(f"Removing the device dimension/field since it is incompatible with"
+                            f" {sub_type} sub_type for custom report")
                 self.body_params["dimensions"].remove("device")
         if sub_type in {"discover", "googleNews"}:
             self.body_params["aggregationType"] = "auto"
@@ -176,6 +178,8 @@ class IncrementalTableStream(BaseStream, ABC):
             # query seems to be an invalid argument while grouping data for discover and googleNews
             if self.tap_stream_id == "performance_report_custom" and \
                     "query" in self.body_params["dimensions"]:
+                LOGGER.info(f"Removing the query dimension/field since it is incompatible with"
+                            f" {sub_type} sub_type for custom report")
                 self.body_params["dimensions"].remove("query")
 
         return {"type": sub_type, "startDate": start_date, "endDate": end_date, **self.body_params}

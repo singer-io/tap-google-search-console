@@ -6,6 +6,11 @@ class TestGoogleSearchConsoleAllFields(GoogleSearchConsoleBaseTest):
     """Test that with all fields selected for a stream automatic and available
     fields are replicated."""
 
+    # Data is expected to miss for this field for certain search types
+    MISSING_FIELDS = {
+        "performance_report_date": {"position"}
+    }
+
     @staticmethod
     def name():
         return "tap_tester_google_search_console_all_fields_test"
@@ -74,4 +79,4 @@ class TestGoogleSearchConsoleAllFields(GoogleSearchConsoleBaseTest):
                     expected_automatic_keys.issubset(expected_all_keys),
                     msg=f'{expected_automatic_keys-expected_all_keys} is not in "expected_all_keys"',
                 )
-                self.assertSetEqual(expected_all_keys, actual_all_keys)
+                self.assertSetEqual(expected_all_keys - self.MISSING_FIELDS.get(stream, set()), actual_all_keys)
