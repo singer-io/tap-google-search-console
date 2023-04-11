@@ -41,6 +41,10 @@ class PerformanceReportDevices(IncrementalTableStream):
 
     tap_stream_id = "performance_report_device"
     key_properties = ["site_url", "search_type", "date", "device"]
+    # Excluding discover sub_type since Requests for Discover cannot be grouped by device.
+    # this also overwrites the sub_types attribute declared for class IncrementalTableStream
+    # in abstract.py
+    sub_types = ["googleNews", "image", "news", "video", "web"]
     valid_replication_keys = ("date",)
 
     body_params = {"aggregationType": "byProperty", "dimensions": ["date", "device"]}
@@ -61,6 +65,11 @@ class PerformanceReportQuery(IncrementalTableStream):
 
     tap_stream_id = "performance_report_query"
     key_properties = ["site_url", "search_type", "date", "query"]
+    # Excluding discover and googleNews since query seems to be an invalid argument while
+    # grouping data for discover and googleNews
+    # this also overwrites the sub_types attribute declared for class IncrementalTableStream
+    # in abstract.py
+    sub_types = ["image", "news", "video", "web"]
     valid_replication_keys = ("date",)
 
     body_params = {"aggregationType": "byProperty", "dimensions": ["date", "query"]}

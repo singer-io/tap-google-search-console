@@ -89,7 +89,7 @@ class IncrementalTableStream(BaseStream, ABC):
     forced_replication_method = "INCREMENTAL"
     replication_key = "date"
     pagination = "body"
-    sub_types = ["web", "image", "video"]
+    sub_types = ["discover", "googleNews", "image", "news", "video", "web"]
     row_limit = 10000
     path = "sites/{}/searchAnalytics/query"
     data_key = "rows"
@@ -166,6 +166,21 @@ class IncrementalTableStream(BaseStream, ABC):
         """Creates payload for POST API Call."""
         if self.tap_stream_id == "performance_report_custom":
             self.body_params["dimensions"] = self.set_dimensions_in_payload(stream_metadata)
+            # Remove discover dimension from dimension_list if sub_type is discover
+            # Requests for Discover cannot be grouped by device
+            if sub_type == "discover" and "device" in self.body_params["dimensions"]:
+                LOGGER.info(f"Removing the device dimension/field since it is incompatible with"
+                            f" {sub_type} sub_type for custom report")
+                self.body_params["dimensions"].remove("device")
+        if sub_type in {"discover", "googleNews"}:
+            self.body_params["aggregationType"] = "auto"
+            # Remove query from dimension list if the sub_type is either discover or googleNews
+            # query seems to be an invalid argument while grouping data for discover and googleNews
+            if self.tap_stream_id == "performance_report_custom" and \
+                    "query" in self.body_params["dimensions"]:
+                LOGGER.info(f"Removing the query dimension/field since it is incompatible with"
+                            f" {sub_type} sub_type for custom report")
+                self.body_params["dimensions"].remove("query")
 
         return {"type": sub_type, "startDate": start_date, "endDate": end_date, **self.body_params}
 

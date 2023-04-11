@@ -73,6 +73,10 @@ class GoogleSearchConsoleInterruptedSyncTest(GoogleSearchConsoleBaseTest):
                         .get("performance_report_query", {})
                         .get(site_url)
                         .get("video"),
+                        "news": first_sync_bookmarks.get("bookmarks", {})
+                        .get("performance_report_query", {})
+                        .get(site_url)
+                        .get("news"),
                     }
                 },
                 "performance_report_date": {
@@ -80,6 +84,9 @@ class GoogleSearchConsoleInterruptedSyncTest(GoogleSearchConsoleBaseTest):
                         "web": self.get_second_sync_bookmark_date(),
                         "image": self.get_second_sync_bookmark_date(),
                         "video": self.get_second_sync_bookmark_date(),
+                        "news": self.get_start_date(),
+                        "discover": self.get_start_date(),
+                        "googleNews": self.get_start_date(),
                     }
                 },
                 "performance_report_country": {
@@ -87,6 +94,9 @@ class GoogleSearchConsoleInterruptedSyncTest(GoogleSearchConsoleBaseTest):
                         "web": self.get_start_date(),
                         "image": self.get_start_date(),
                         "video": self.get_start_date(),
+                        "news": self.get_start_date(),
+                        "discover": self.get_start_date(),
+                        "googleNews": self.get_start_date(),
                     }
                 },
                 "performance_report_page": {
@@ -94,6 +104,9 @@ class GoogleSearchConsoleInterruptedSyncTest(GoogleSearchConsoleBaseTest):
                         "web": self.get_start_date(),
                         "image": self.get_start_date(),
                         "video": self.get_start_date(),
+                        "news": self.get_start_date(),
+                        "discover": self.get_start_date(),
+                        "googleNews": self.get_start_date(),
                     }
                 },
                 "performance_report_device": {
@@ -101,6 +114,8 @@ class GoogleSearchConsoleInterruptedSyncTest(GoogleSearchConsoleBaseTest):
                         "web": self.get_start_date(),
                         "image": self.get_start_date(),
                         "video": self.get_start_date(),
+                        "news": self.get_start_date(),
+                        "googleNews": self.get_start_date(),
                     }
                 },
             },
