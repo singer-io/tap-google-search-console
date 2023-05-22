@@ -9,7 +9,7 @@ setup(
     author="jeff.huth@bytecode.io",
     classifiers=["Programming Language :: Python :: 3 :: Only"],
     py_modules=["tap_google_search_console"],
-    install_requires=["backoff==1.8.0", "requests==2.22.0", "singer-python==5.13.0"],
+    install_requires=["backoff==1.8.0", "requests==2.31.0", "singer-python==5.13.0"],
     extras_require={
         "dev": [
             "ipdb",
