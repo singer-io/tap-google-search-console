@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.0.1
+  * Dependabot update [#40](https://github.com/singer-io/tap-google-search-console/pull/40)
+
 ## 1.0.0
   * Add support for new search types discover, googleNews, news [#39](https://github.com/singer-io/tap-google-search-console/pull/39)
   * General release of the tap
