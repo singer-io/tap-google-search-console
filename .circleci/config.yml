@@ -11,7 +11,7 @@ jobs:
           command: |
             python3 -mvenv /usr/local/share/virtualenvs/tap-google-search-console
             source /usr/local/share/virtualenvs/tap-google-search-console/bin/activate
-            pip install -U 'pip<19.2' 'setuptools<51.0.0'
+            pip install -U pip 'setuptools<51.0.0'
             pip install .[dev]
       - run:
           name: 'pylint'
@@ -27,9 +27,8 @@ jobs:
           name: 'Unit Tests'
           command: |
             source /usr/local/share/virtualenvs/tap-google-search-console/bin/activate
-            pip install nose coverage
-            nosetests --with-coverage --cover-erase --cover-package=tap_google_search_console --cover-html-dir=htmlcov tests/unittests
-            coverage html
+            pip install nose2 parameterized nose2[coverage_plugin]>=0.6.5
+            nose2 --with-coverage -v -s tests/unittests
       - store_test_results:
           path: test_output/report.xml
       - store_artifacts:
