@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.0
+  * Updates to run on python 3.11.7 [#41](https://github.com/singer-io/tap-google-search-console/pull/41)
+
 ## 1.0.0
   * Add support for new search types discover, googleNews, news [#39](https://github.com/singer-io/tap-google-search-console/pull/39)
   * General release of the tap
