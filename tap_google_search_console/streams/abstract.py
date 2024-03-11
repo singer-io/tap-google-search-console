@@ -279,7 +279,6 @@ class IncrementalTableStream(BaseStream, ABC):
                     self.write_bookmark(state, site_url, sub_type, bookmark_value)
                     LOGGER.info(f"There are no raw data records for date window {start_dt_tm} to {end_dt_tm}, "
                                 f" from offset value {offset}")
-                    start_dt_tm, end_dt_tm = self.modify_start_end_dt_tm(end_dt_tm)
                 transformed_data = []
                 if self.data_key in data:
                     transformed_data = transform_json(
@@ -305,9 +304,8 @@ class IncrementalTableStream(BaseStream, ABC):
                     bookmark_value,
                     last_datetime=last_datetime,
                 )
-                self.write_bookmark(state, site_url, sub_type, bookmark_value)
                 offset = offset + row_limit
-
+            self.write_bookmark(state, site_url, sub_type, bookmark_value)
             start_dt_tm, end_dt_tm = self.modify_start_end_dt_tm(end_dt_tm)
 
     def get_records_for_site(self, site_url: str, state: Dict, schema: Dict, stream_metadata: Dict) -> None:
