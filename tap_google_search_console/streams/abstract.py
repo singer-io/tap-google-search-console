@@ -257,6 +257,7 @@ class IncrementalTableStream(BaseStream, ABC):
         LOGGER.info(f"bookmark value or start date for {self.tap_stream_id} {site_url} {sub_type}: {start_dt_tm}")
         site_path = encode_and_format_url(site_url, self.path)
         while start_dt_tm < end_dt_tm:
+            LOGGER.info("Using Start and end date %s, %s",start_dt_tm, end_dt_tm)
             offset, row_limit, batch_count = 0, self.row_limit, self.row_limit
             last_datetime = self.get_bookmark(
                 state, self.tap_stream_id, site_url, sub_type, self.config.get("start_date")
@@ -278,7 +279,6 @@ class IncrementalTableStream(BaseStream, ABC):
                     self.write_bookmark(state, site_url, sub_type, bookmark_value)
                     LOGGER.info(f"There are no raw data records for date window {start_dt_tm} to {end_dt_tm}, "
                                 f" from offset value {offset}")
-                    start_dt_tm, end_dt_tm = self.modify_start_end_dt_tm(end_dt_tm)
                 transformed_data = []
                 if self.data_key in data:
                     transformed_data = transform_json(
@@ -292,7 +292,6 @@ class IncrementalTableStream(BaseStream, ABC):
 
                 if not transformed_data:
                     self.write_bookmark(state, site_url, sub_type, bookmark_value)
-                    start_dt_tm, end_dt_tm = self.modify_start_end_dt_tm(end_dt_tm)
 
                 self.validate_keys_in_data(transformed_data)
                 LOGGER.info(f"Total synced records for {sub_type} {self.tap_stream_id}: {len(transformed_data)}")
@@ -305,9 +304,8 @@ class IncrementalTableStream(BaseStream, ABC):
                     bookmark_value,
                     last_datetime=last_datetime,
                 )
-                self.write_bookmark(state, site_url, sub_type, bookmark_value)
                 offset = offset + row_limit
-
+            self.write_bookmark(state, site_url, sub_type, bookmark_value)
             start_dt_tm, end_dt_tm = self.modify_start_end_dt_tm(end_dt_tm)
 
     def get_records_for_site(self, site_url: str, state: Dict, schema: Dict, stream_metadata: Dict) -> None:
