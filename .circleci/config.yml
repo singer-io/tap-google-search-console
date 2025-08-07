@@ -2,17 +2,17 @@ version: 2
 jobs:
   build:
     docker:
-      - image: 218546966473.dkr.ecr.us-east-1.amazonaws.com/circle-ci:stitch-tap-tester
+      - image: 218546966473.dkr.ecr.us-east-1.amazonaws.com/circle-ci:stitch-tap-tester-uv
     steps:
       - checkout
       - add_ssh_keys
       - run:
           name: 'Setup virtual env'
           command: |
-            python3 -mvenv /usr/local/share/virtualenvs/tap-google-search-console
+            uv venv --python 3.11 /usr/local/share/virtualenvs/tap-google-search-console
             source /usr/local/share/virtualenvs/tap-google-search-console/bin/activate
-            pip install -U pip 'setuptools<51.0.0'
-            pip install .[dev]
+            uv pip install -U pip 'setuptools<51.0.0'
+            uv pip install .[dev]
       - run:
           name: 'pylint'
           command: |
@@ -27,8 +27,9 @@ jobs:
           name: 'Unit Tests'
           command: |
             source /usr/local/share/virtualenvs/tap-google-search-console/bin/activate
-            pip install nose2 parameterized nose2[coverage_plugin]>=0.6.5
-            nose2 --with-coverage -v -s tests/unittests
+            uv pip install pytest coverage parameterized
+            coverage run -m pytest tests/unittests
+            coverage html
       - store_test_results:
           path: test_output/report.xml
       - store_artifacts:
@@ -36,9 +37,10 @@ jobs:
       - run:
           name: 'Integration Tests'
           command: |
+            source /usr/local/share/virtualenvs/tap-tester/bin/activate
+            uv pip install --upgrade awscli
             aws s3 cp s3://com-stitchdata-dev-deployment-assets/environments/tap-tester/tap_tester_sandbox dev_env.sh
             source dev_env.sh
-            source /usr/local/share/virtualenvs/tap-tester/bin/activate
             run-test --tap=tap-google-search-console tests
 workflows:
   version: 2
