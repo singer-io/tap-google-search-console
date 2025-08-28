@@ -24,7 +24,7 @@ class TestHelpers(TestCase):
             "camel_case_key": "UnitTest",
             "snake_case_keys": [{"first_name": "tester", "second_name": "dev"}],
         }
-        self.assertEquals(helpers.convert_json(input_json), expected_output)
+        self.assertEqual(helpers.convert_json(input_json), expected_output)
 
     def test_add_search_types(self):
         """Tests the function to add `search_type` Key to row in extracted
@@ -37,8 +37,8 @@ class TestHelpers(TestCase):
                 {"app_name": "", "app_id": 343, "search_type": "app"},
             ]
         }
-        self.assertEquals(helpers.add_site_url_search_type(input_data, "rows", "app",
-                                                           key_name="search_type"), expected_output)
+        self.assertEqual(helpers.add_site_url_search_type(input_data, "rows", "app",
+                                                          key_name="search_type"), expected_output)
 
     def test_add_site_url(self):
         """Tests the function to add `search_type` Key to row in extracted
@@ -50,5 +50,4 @@ class TestHelpers(TestCase):
                 {"app_name": "", "app_id": 343, "site_url": "https://www.test.com"},
             ]
         }
-        self.assertEquals(helpers.add_site_url_search_type(input_data, "rows", "https://www.test.com"), expected_output)
-
+        self.assertEqual(helpers.add_site_url_search_type(input_data, "rows", "https://www.test.com"), expected_output)
