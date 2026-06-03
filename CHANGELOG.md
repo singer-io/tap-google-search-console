@@ -1,5 +1,8 @@
 # Changelog
 
+## 1.1.2
+  * Bump requests dependency versions for twistlock compliance [#51](https://github.com/singer-io/tap-google-search-console/pull/51)
+
 ## 1.1.1
   * Bump dependency versions for twistlock compliance [#46](https://github.com/singer-io/tap-google-search-console/pull/46)
 
